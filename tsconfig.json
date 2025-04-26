@@ -1,0 +1,21 @@
+{
+	"compilerOptions": {
+		"target": "es2022",
+		"module": "Node16",
+		"moduleResolution": "node16",
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"sourceMap": true,
+		"resolveJsonModule": true, // Allow importing JSON files as modules
+		"isolatedModules": true, // Ensure compatibility with ES module loaders
+		"declaration": true, // Generate declaration files (.d.ts)
+		"declarationMap": true, // Generate declaration map files (.d.ts.map)
+		"declarationDir": "./@types"
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules"]
+}
