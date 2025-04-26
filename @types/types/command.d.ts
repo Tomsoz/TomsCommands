@@ -29,35 +29,31 @@ type BaseCommand<O extends Options = Options> = {
 };
 type TextCommand<O extends Options = Options> = BaseCommand<O> & {
     type: "text";
-    callback: (args: TextCallbackArgs<O>) => Promise<MessageReplyOptions | MessagePayload | string | null | undefined>;
+    callback: (args: TextCallbackArgs<O>) => Promise<MessageReplyOptions | MessagePayload | string | null | undefined | void>;
     onError?: (args: TextOnErrorArgs<O>) => void;
 };
 type TextCallbackArgs<O extends Options> = BaseCallbackArgs<O, TextCommand<O>> & {
     message: Message;
 };
-type TextOnErrorArgs<O extends Options> = BaseOnErrorArgs<O, TextCommand<O>> & {
-    message: Message;
-};
+type TextOnErrorArgs<O extends Options> = BaseOnErrorArgs<O, TextCommand<O>>;
 type SlashCommand<O extends Options = Options> = BaseCommand<O> & {
     type: "slash";
     delete?: boolean;
     defer?: boolean | keyof O;
-    callback: (args: SlashCallbackArgs<O>) => Promise<InteractionReplyOptions | InteractionEditReplyOptions | string | null | undefined>;
+    callback: (args: SlashCallbackArgs<O>) => Promise<InteractionReplyOptions | InteractionEditReplyOptions | string | null | undefined | void>;
     onError?: (args: SlashOnErrorArgs<O>) => void;
 };
 type SlashCallbackArgs<O extends Options> = BaseCallbackArgs<O, SlashCommand<O>> & {
     interaction: CommandInteraction;
 };
-type SlashOnErrorArgs<O extends Options> = BaseOnErrorArgs<O, SlashCommand<O>> & {
-    interaction: CommandInteraction;
-};
+type SlashOnErrorArgs<O extends Options> = BaseOnErrorArgs<O, SlashCommand<O>>;
 type HybridCommand<O extends Options = Options> = BaseCommand<O> & {
     type: "hybrid";
     delete?: boolean;
     defer?: boolean | keyof {
         [K in keyof O as O[K] extends BooleanOption ? K : never]: O[K];
     };
-    callback: (args: HybridCallbackArgs<O>) => Promise<MessageReplyOptions | MessagePayload | InteractionReplyOptions | InteractionEditReplyOptions | string | null | undefined>;
+    callback: (args: HybridCallbackArgs<O>) => Promise<MessageReplyOptions | MessagePayload | InteractionReplyOptions | InteractionEditReplyOptions | string | null | undefined | void>;
     onError?: (args: HybridOnErrorArgs<O>) => void;
 };
 type HybridCallbackArgs<O extends Options> = BaseCallbackArgs<O, HybridCommand<O>> & InvocationContext;

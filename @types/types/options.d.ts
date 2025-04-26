@@ -1,17 +1,4 @@
 import { Attachment, Channel, Role, User } from "discord.js";
-type StringOption = BaseOption<"string">;
-type NumberOption = BaseOption<"number">;
-type BooleanOption = BaseOption<"boolean">;
-type UserOption = BaseOption<"user">;
-type ChannelOption = BaseOption<"channel">;
-type RoleOption = BaseOption<"role">;
-type MentionableOption = BaseOption<"mentionable">;
-type AttachmentOption = BaseOption<"attachment">;
-type Choice = {
-    name: string;
-    value: string;
-};
-type Option = StringOption | NumberOption | BooleanOption | UserOption | ChannelOption | RoleOption | MentionableOption | AttachmentOption;
 type PrimitiveTypeMap = {
     string: string;
     number: number;
@@ -30,14 +17,21 @@ type OptionCore<T extends keyof PrimitiveTypeMap> = {
 type RequiredOption<T extends keyof PrimitiveTypeMap> = OptionCore<T> & {
     required: true;
     default?: never;
-    choices?: T extends "string" ? Choice[] : never;
 };
 type OptionalOption<T extends keyof PrimitiveTypeMap> = OptionCore<T> & {
     required?: false;
     default?: PrimitiveTypeMap[T];
-    choices?: T extends "string" ? Choice[] : never;
 };
 type BaseOption<T extends keyof PrimitiveTypeMap = keyof PrimitiveTypeMap> = RequiredOption<T> | OptionalOption<T>;
+type StringOption = BaseOption<"string">;
+type NumberOption = BaseOption<"number">;
+type BooleanOption = BaseOption<"boolean">;
+type UserOption = BaseOption<"user">;
+type ChannelOption = BaseOption<"channel">;
+type RoleOption = BaseOption<"role">;
+type MentionableOption = BaseOption<"mentionable">;
+type AttachmentOption = BaseOption<"attachment">;
+type Option = StringOption | NumberOption | BooleanOption | UserOption | ChannelOption | RoleOption | MentionableOption | AttachmentOption;
 type Options = {
     [name: string]: Option;
 };

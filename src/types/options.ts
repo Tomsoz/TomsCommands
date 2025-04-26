@@ -1,31 +1,7 @@
 import { Attachment, Channel, Role, User } from "discord.js";
 
-type StringOption = BaseOption<undefined, "string">;
-type NumberOption = BaseOption<undefined, "number">;
-type BooleanOption = BaseOption<undefined, "boolean">;
-type UserOption = BaseOption<undefined, "user">;
-type ChannelOption = BaseOption<undefined, "channel">;
-type RoleOption = BaseOption<undefined, "role">;
-type MentionableOption = BaseOption<undefined, "mentionable">;
-type AttachmentOption = BaseOption<undefined, "attachment">;
-
-type Choice = {
-	name: string;
-	value: string;
-};
-
-type Option =
-	| StringOption
-	| NumberOption
-	| BooleanOption
-	| UserOption
-	| ChannelOption
-	| RoleOption
-	| MentionableOption
-	| AttachmentOption;
-
-type PrimitiveTypeMap<C extends Choice[] | undefined = undefined> = {
-	string: C extends Choice[] ? number : string;
+type PrimitiveTypeMap = {
+	string: string;
 	number: number;
 	boolean: boolean;
 	user: User;
@@ -35,55 +11,60 @@ type PrimitiveTypeMap<C extends Choice[] | undefined = undefined> = {
 	attachment: Attachment;
 };
 
-type OptionCore<
-	C extends Choice[] | undefined = undefined,
-	T extends keyof PrimitiveTypeMap<C> = keyof PrimitiveTypeMap<C>
-> = {
+type OptionCore<T extends keyof PrimitiveTypeMap> = {
 	name?: string;
 	description: string;
 	type: T;
 };
 
-type RequiredOption<
-	C extends Choice[] | undefined = undefined,
-	T extends keyof PrimitiveTypeMap<C> = keyof PrimitiveTypeMap<C>
-> = OptionCore<C, T> & {
+type RequiredOption<T extends keyof PrimitiveTypeMap> = OptionCore<T> & {
 	required: true;
 	default?: never;
-	choices?: T extends "string" ? C : never;
 };
 
-type OptionalOption<
-	C extends Choice[] | undefined = undefined,
-	T extends keyof PrimitiveTypeMap<C> = keyof PrimitiveTypeMap<C>
-> = OptionCore<C, T> & {
+type OptionalOption<T extends keyof PrimitiveTypeMap> = OptionCore<T> & {
 	required?: false;
-	default?: PrimitiveTypeMap<C>[T];
-	choices?: T extends "string" ? C : never;
+	default?: PrimitiveTypeMap[T];
 };
 
-type BaseOption<
-	C extends Choice[] | undefined = undefined,
-	T extends keyof PrimitiveTypeMap<C> = keyof PrimitiveTypeMap<C>
-> = RequiredOption<C, T> | OptionalOption<C, T>;
+type BaseOption<T extends keyof PrimitiveTypeMap = keyof PrimitiveTypeMap> =
+	| RequiredOption<T>
+	| OptionalOption<T>;
 
+type StringOption = BaseOption<"string">;
+type NumberOption = BaseOption<"number">;
+type BooleanOption = BaseOption<"boolean">;
+type UserOption = BaseOption<"user">;
+type ChannelOption = BaseOption<"channel">;
+type RoleOption = BaseOption<"role">;
+type MentionableOption = BaseOption<"mentionable">;
+type AttachmentOption = BaseOption<"attachment">;
+type Option =
+	| StringOption
+	| NumberOption
+	| BooleanOption
+	| UserOption
+	| ChannelOption
+	| RoleOption
+	| MentionableOption
+	| AttachmentOption;
 type Options = {
 	[name: string]: Option;
 };
 
 type TransformOptions<O extends Options> = {
 	[K in keyof O]: O[K] &
-		(O[K] extends BaseOption<infer C, infer T>
+		(O[K] extends BaseOption<infer T>
 			? O[K] extends { required: true }
 				? {
-						value: PrimitiveTypeMap<C>[T];
+						value: PrimitiveTypeMap[T];
 				  }
-				: O[K]["default"] extends PrimitiveTypeMap<C>[T]
+				: O[K]["default"] extends PrimitiveTypeMap[T]
 				? {
-						value: PrimitiveTypeMap<C>[T];
+						value: PrimitiveTypeMap[T];
 				  }
 				: {
-						value?: PrimitiveTypeMap<C>[T];
+						value?: PrimitiveTypeMap[T];
 				  }
 			: {});
 };
