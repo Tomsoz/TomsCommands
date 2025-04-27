@@ -10,35 +10,35 @@ import {
 import { HybridCallbackArgs, SlashCallbackArgs } from "./command.js";
 import { Options } from "./options.js";
 
-type AllSyntaxValidation = {
+export type AllSyntaxValidation = {
 	type: "all";
 	callback: (args: Command<Options>, instance: Handlers) => Promise<void>;
 };
-type TextSyntaxValidation = {
+export type TextSyntaxValidation = {
 	type: "text";
 	callback: (args: TextCommand<Options>, instance: Handlers) => Promise<void>;
 };
-type SlashSyntaxValidation = {
+export type SlashSyntaxValidation = {
 	type: "slash";
 	callback: (
 		args: SlashCommand<Options>,
 		instance: Handlers
 	) => Promise<void>;
 };
-type HybridSyntaxValidation = {
+export type HybridSyntaxValidation = {
 	type: "hybrid";
 	callback: (
 		args: HybridCommand<Options>,
 		instance: Handlers
 	) => Promise<void>;
 };
-type SyntaxValidation =
+export type SyntaxValidation =
 	| AllSyntaxValidation
 	| TextSyntaxValidation
 	| SlashSyntaxValidation
 	| HybridSyntaxValidation;
 
-type AllRuntimeValidation = {
+export type AllRuntimeValidation = {
 	type: "all";
 	callback: (
 		args:
@@ -48,49 +48,34 @@ type AllRuntimeValidation = {
 		instance: Handlers
 	) => Promise<boolean>;
 };
-type TextRuntimeValidation = {
+export type TextRuntimeValidation = {
 	type: "text";
 	callback: (
 		args: TextCallbackArgs<Options>,
 		instance: Handlers
 	) => Promise<boolean>;
 };
-type HybridRuntimeValidation = {
+export type HybridRuntimeValidation = {
 	type: "hybrid";
 	callback: (
 		args: HybridCallbackArgs<Options>,
 		instance: Handlers
 	) => Promise<boolean>;
 };
-type SlashRuntimeValidation = {
+export type SlashRuntimeValidation = {
 	type: "slash";
 	callback: (
 		args: SlashCallbackArgs<Options>,
 		instance: Handlers
 	) => Promise<boolean>;
 };
-type RuntimeValidation =
+export type RuntimeValidation =
 	| AllRuntimeValidation
 	| TextRuntimeValidation
 	| HybridRuntimeValidation
 	| SlashRuntimeValidation;
 
-type ValidationType = "syntax" | "runtime";
-type GetValidation<T extends ValidationType> = T extends "syntax"
+export type ValidationType = "syntax" | "runtime";
+export type GetValidation<T extends ValidationType> = T extends "syntax"
 	? AllSyntaxValidation
 	: AllRuntimeValidation;
-
-export type {
-	AllRuntimeValidation,
-	AllSyntaxValidation,
-	GetValidation,
-	HybridRuntimeValidation,
-	HybridSyntaxValidation,
-	RuntimeValidation,
-	SlashRuntimeValidation,
-	SlashSyntaxValidation,
-	SyntaxValidation,
-	TextRuntimeValidation,
-	TextSyntaxValidation,
-	ValidationType
-};

@@ -1,26 +1,28 @@
 import { Command } from "./types/command.js";
-import { BaseOption, Options, PrimitiveTypeMap } from "./types/options.js";
+import { Choice, Option, OptionalOption, Options } from "./types/options.js";
 import { RuntimeValidation, SyntaxValidation } from "./types/validations.js";
 
-function createCmd<O extends Options>(cmd: Command<O>) {
+export function command<O extends Options>(cmd: Command<O>) {
 	return cmd;
 }
-function createOption<
-	T extends keyof PrimitiveTypeMap,
-	O extends BaseOption<T>
->(option: O) {
+export function option<Opt extends Option>(
+	option: Opt &
+		(Opt extends OptionalOption<"string"> & {
+			choices: infer C extends ReadonlyArray<Choice<"string">>;
+		}
+			? { default?: C[number]["value"] }
+			: unknown)
+): Opt {
 	return option;
 }
-function createRuntimeValidation(validation: RuntimeValidation) {
+export function choices<
+	const C extends ReadonlyArray<Choice<"string"> | Choice<"number">>
+>(...choices: C): C {
+	return choices;
+}
+export function runtimeValidation(validation: RuntimeValidation) {
 	return validation;
 }
-function createSyntaxValidation(validation: SyntaxValidation) {
+export function syntaxValidation(validation: SyntaxValidation) {
 	return validation;
 }
-
-export {
-	createCmd,
-	createOption,
-	createRuntimeValidation,
-	createSyntaxValidation
-};
