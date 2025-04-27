@@ -1,8 +1,8 @@
-import { createRuntimeValidation } from "../../../builders.js";
+import { runtimeValidation } from "../../../builders.js";
 import { TextCallbackArgs } from "../../../types/command.js";
 import { Options } from "../../../types/options.js";
 
-const validation = createRuntimeValidation({
+const validation = runtimeValidation({
 	type: "all",
 	callback: async (args, instance) => {
 		const { command, guild } = args;

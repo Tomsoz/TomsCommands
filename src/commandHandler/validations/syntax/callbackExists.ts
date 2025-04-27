@@ -1,6 +1,6 @@
-import { createSyntaxValidation } from "../../../builders.js";
+import { syntaxValidation } from "../../../builders.js";
 
-const validation = createSyntaxValidation({
+const validation = syntaxValidation({
 	type: "all",
 	callback: async (command) => {
 		if (!command.callback) {

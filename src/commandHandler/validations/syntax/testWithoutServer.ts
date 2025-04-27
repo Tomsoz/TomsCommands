@@ -1,7 +1,7 @@
-import { createSyntaxValidation } from "../../../builders.js";
+import { syntaxValidation } from "../../../builders.js";
 import { isOnlyDigits } from "../../../utils/strings.js";
 
-const validation = createSyntaxValidation({
+const validation = syntaxValidation({
 	type: "all",
 	callback: async (command, instance) => {
 		const devGuilds = instance.devGuilds.filter((guild: string) =>

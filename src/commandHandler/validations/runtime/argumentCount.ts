@@ -1,6 +1,6 @@
-import { createRuntimeValidation } from "../../../builders.js";
+import { runtimeValidation } from "../../../builders.js";
 
-const validation = createRuntimeValidation({
+const validation = runtimeValidation({
 	type: "all",
 	callback: async (args) => {
 		if (args.command.type === "slash") return true;

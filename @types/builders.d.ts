@@ -1,9 +1,13 @@
 import { Command } from "./types/command.js";
-import { BaseOption, Options, PrimitiveTypeMap } from "./types/options.js";
+import { Choice, Option, OptionalOption, Options } from "./types/options.js";
 import { RuntimeValidation, SyntaxValidation } from "./types/validations.js";
-declare function createCmd<O extends Options>(cmd: Command<O>): Command<O>;
-declare function createOption<T extends keyof PrimitiveTypeMap, O extends BaseOption<T>>(option: O): O;
-declare function createRuntimeValidation(validation: RuntimeValidation): RuntimeValidation;
-declare function createSyntaxValidation(validation: SyntaxValidation): SyntaxValidation;
-export { createCmd, createOption, createRuntimeValidation, createSyntaxValidation };
+export declare function command<O extends Options>(cmd: Command<O>): Command<O>;
+export declare function option<Opt extends Option>(option: Opt & (Opt extends OptionalOption<"string"> & {
+    choices: infer C extends ReadonlyArray<Choice<"string">>;
+} ? {
+    default?: C[number]["value"];
+} : unknown)): Opt;
+export declare function choices<const C extends ReadonlyArray<Choice<"string"> | Choice<"number">>>(...choices: C): C;
+export declare function runtimeValidation(validation: RuntimeValidation): RuntimeValidation;
+export declare function syntaxValidation(validation: SyntaxValidation): SyntaxValidation;
 //# sourceMappingURL=builders.d.ts.map
