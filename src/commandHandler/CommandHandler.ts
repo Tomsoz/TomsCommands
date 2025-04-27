@@ -35,7 +35,7 @@ class CommandHandler {
 	private _commands = new Map<string, CommandObject>();
 	private _validations: Promise<RuntimeValidation[]> =
 		this.getValidations("runtime");
-	private _prefix = "!";
+	private _prefix: string | undefined;
 
 	constructor({
 		instance,
@@ -49,9 +49,12 @@ class CommandHandler {
 		this._instance = instance;
 		this._commandsDir = commandsDir;
 		this._slashCommands = new SlashCommands(client);
+		this._prefix = instance.prefix;
 
 		this.readFiles();
-		this.messageListener(client);
+		if (this._prefix) {
+			this.messageListener(client);
+		}
 		this.interactionListener(client);
 	}
 
@@ -73,11 +76,6 @@ class CommandHandler {
 			if (!commandName) {
 				throw new Error(`Command name not found in file name ${file}`);
 			}
-
-			// const validatedCommand = validateCommand(command);
-			// if (!validatedCommand) {
-			// 	throw new Error(`Command ${commandName} is not valid`);
-			// }
 
 			const commandObject = new CommandObject(
 				this._instance,
@@ -111,7 +109,11 @@ class CommandHandler {
 			}
 
 			if (command.type === "text" || command.type === "hybrid") {
-				this._commands.set(commandObject.commandName, commandObject);
+				if (this._prefix)
+					this._commands.set(
+						commandObject.commandName,
+						commandObject
+					);
 			}
 
 			if (command.type === "slash" || command.type === "hybrid") {
@@ -167,7 +169,7 @@ class CommandHandler {
 
 	messageListener(client: Client) {
 		client.on("messageCreate", async (message) => {
-			if (message.author.bot) return;
+			if (message.author.bot || !this._prefix) return;
 
 			const { content } = message;
 			if (!content.startsWith(this._prefix)) return;

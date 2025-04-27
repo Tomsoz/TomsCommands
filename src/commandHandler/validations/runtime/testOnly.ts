@@ -17,7 +17,7 @@ const validation = runtimeValidation({
 			};
 			await command.onError?.(errorArgs as any);
 
-			return command.type === "slash";
+			return false;
 		}
 
 		return true;

@@ -1,13 +1,33 @@
 import { runtimeValidation } from "../../../builders.js";
+import { TextOnErrorArgs } from "../../../types/command.js";
 
 const validation = runtimeValidation({
-	type: "all",
-	callback: async (args) => {
-		if (args.command.type === "slash") return true;
+	type: "text",
+	callback: async (args, instance) => {
+		if (!instance.prefix) return false;
 
-		// TODO: Implement argument count validation
+		const { command, message } = args;
+		const { options } = command;
+		const providedArgs = message.content.split(/\s+/);
+		const commandName = providedArgs
+			.shift()
+			?.substring(instance.prefix.length)
+			?.trim();
 
-		return true;
+		const requiredArgs = Object.entries(options).filter(
+			([_, option]) => option.required
+		);
+
+		const onErrorArgs: TextOnErrorArgs<typeof options> = {
+			...args,
+			error:
+				providedArgs.length < requiredArgs.length
+					? "tooLittleArgs"
+					: "tooManyArgs"
+		};
+		await command.onError?.(onErrorArgs);
+
+		return providedArgs.length >= requiredArgs.length;
 	}
 });
 
