@@ -1,12 +1,12 @@
 import { PrimitiveTypeMap } from "../types/options.js";
 
 export function parseArgument<T extends keyof PrimitiveTypeMap>(
-	arg: string,
+	arg: any,
 	type: T
 ): PrimitiveTypeMap[T] {
 	switch (type) {
 		case "string":
-			return arg as PrimitiveTypeMap[T];
+			return String(arg) as PrimitiveTypeMap[T];
 		case "number":
 			return Number(arg) as PrimitiveTypeMap[T];
 		case "boolean":

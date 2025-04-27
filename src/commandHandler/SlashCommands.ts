@@ -36,15 +36,6 @@ export default class SlashCommands {
 			);
 		}
 
-		const existingCommand = commands.cache.find(
-			(command) => command.name === name
-		);
-		if (existingCommand) {
-			// TODO: Update command
-			console.log("Command already exists " + name);
-			return;
-		}
-
 		const discordOptions: ApplicationCommandOptionData[] = Object.entries(
 			options
 		).map(([key, value]) => {
@@ -56,6 +47,15 @@ export default class SlashCommands {
 				required: value.required ?? false
 			} as ApplicationCommandOptionData;
 		});
+
+		const existingCommand = commands.cache.find(
+			(command) => command.name === name
+		);
+		if (existingCommand) {
+			// TODO: Update command
+			console.log("Command already exists " + name);
+			return;
+		}
 
 		await commands.create({ name, description, options: discordOptions });
 	}

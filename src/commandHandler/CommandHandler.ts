@@ -137,8 +137,8 @@ class CommandHandler {
 	}
 
 	async runCommand(
-		commandName: string,
-		args: string[],
+		command: CommandObject,
+		options: Options,
 		message?: Message,
 		interaction?: CommandInteraction
 	) {
@@ -148,32 +148,11 @@ class CommandHandler {
 			);
 		}
 
-		const command = this._commands.get(commandName.toLowerCase());
-		if (!command) return;
 		if (message && command.commandObject.type === "slash") return;
-
-		const commandType = command.commandObject.type;
-		const options = command.commandObject.options ?? {};
-		const typedOptions: TransformOptions<typeof options> = options;
-		let i = 0;
-		const newOptions = Object.fromEntries(
-			Object.entries(typedOptions).map(([key, value]) => {
-				if (i >= args.length) {
-					if (value.required) {
-						throw new Error(`Missing required option: ${key}`);
-					}
-					value.value = value.default;
-				} else {
-					value.value = parseArgument(args[i], value.type);
-				}
-				i++;
-				return [key, value];
-			})
-		);
 
 		const callbackArgs = {
 			guild: message?.guild ?? interaction?.guild ?? null,
-			args: newOptions,
+			args: options,
 			command: command.commandObject,
 			interaction,
 			message
@@ -200,17 +179,61 @@ class CommandHandler {
 				?.trim();
 			if (!commandName || commandName.length === 0) return;
 
-			await this.runCommand(commandName, args, message);
+			const command = this._commands.get(commandName.toLowerCase());
+			if (!command) return;
+
+			const options = command.commandObject.options ?? {};
+			const typedOptions: TransformOptions<typeof options> = options;
+
+			let i = 0;
+			const newOptions = Object.fromEntries(
+				Object.entries(typedOptions).map(([key, value]) => {
+					if (i >= args.length) {
+						if (value.required) {
+							throw new Error(`Missing required option: ${key}`);
+						}
+						value.value = value.default;
+					} else {
+						value.value = parseArgument(args[i], value.type);
+					}
+					i++;
+					return [key, value];
+				})
+			);
+
+			await this.runCommand(command, newOptions, message);
 		});
 	}
 
 	interactionListener(client: Client) {
 		client.on("interactionCreate", async (interaction) => {
 			if (!interaction.isCommand()) return;
-			const args = ["2", "4"];
+
+			const command = this._commands.get(interaction.commandName);
+			if (!command) return;
+
+			const options = command.commandObject.options ?? {};
+			const typedOptions: TransformOptions<typeof options> = options;
+			const finalOptions: Options = {};
+			interaction.options.data.map((option) => {
+				const typedOption = typedOptions[option.name];
+				if (!typedOption) return;
+				if (!option.value && typedOption.required) {
+					throw new Error(`Missing required option: ${option.name}`);
+				} else if (!option.value) {
+					typedOption.value = typedOption.default;
+				} else {
+					typedOption.value = parseArgument(
+						option.value,
+						typedOption.type
+					);
+				}
+				finalOptions[option.name] = typedOption;
+			});
+
 			await this.runCommand(
-				interaction.commandName,
-				args,
+				command,
+				finalOptions,
 				undefined,
 				interaction
 			);

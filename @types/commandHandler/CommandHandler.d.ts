@@ -3,6 +3,7 @@ import { Handlers } from "../index.js";
 import { CallbackArgs, Command } from "../types/command.js";
 import { Options } from "../types/options.js";
 import { GetValidation, RuntimeValidation, ValidationType } from "../types/validations.js";
+import { CommandObject } from "./Command.js";
 declare class CommandHandler {
     private _instance;
     private _commandsDir;
@@ -16,7 +17,7 @@ declare class CommandHandler {
         client: Client;
     });
     readFiles(): Promise<void>;
-    runCommand(commandName: string, args: string[], message?: Message, interaction?: CommandInteraction): Promise<void>;
+    runCommand(command: CommandObject, options: Options, message?: Message, interaction?: CommandInteraction): Promise<void>;
     messageListener(client: Client): void;
     interactionListener(client: Client): void;
     processCommand<O extends Options>(command: Command<O>, validations: RuntimeValidation[], data: CallbackArgs<O>): Promise<void>;
