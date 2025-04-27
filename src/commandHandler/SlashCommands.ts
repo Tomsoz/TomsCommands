@@ -1,4 +1,8 @@
-import { ApplicationCommandOptionData, Client } from "discord.js";
+import {
+	ApplicationCommandOption,
+	ApplicationCommandOptionData,
+	Client
+} from "discord.js";
 import { Options } from "../types/options.js";
 import { getApplicationCommandOptionType } from "../utils/typing.js";
 
@@ -21,6 +25,40 @@ export default class SlashCommands {
 
 		await commands?.fetch({});
 		return commands;
+	}
+
+	areOptionsDifferent(
+		existingOptions: (ApplicationCommandOption & {
+			nameLocalized?: string;
+			descriptionLocalized?: string;
+		})[],
+		newOptions: ApplicationCommandOptionData[]
+	) {
+		return (
+			existingOptions.length !== newOptions.length ||
+			existingOptions.some((option, index) => {
+				const newOption = newOptions[index];
+
+				const optionHasRequired = "required" in option;
+				const newOptionHasRequired = "required" in newOption;
+
+				let requiredIsDifferent = false;
+				if (optionHasRequired && newOptionHasRequired) {
+					requiredIsDifferent =
+						(option as any).required !==
+						(newOption as any).required;
+				} else if (optionHasRequired !== newOptionHasRequired) {
+					requiredIsDifferent = true;
+				}
+
+				return (
+					option.name !== newOption.name ||
+					option.description !== newOption.description ||
+					option.type !== newOption.type ||
+					requiredIsDifferent
+				);
+			})
+		);
 	}
 
 	async create(
@@ -57,12 +95,29 @@ export default class SlashCommands {
 			(command) => command.name === name
 		);
 		if (existingCommand) {
-			// TODO: Update command
-			console.log("Command already exists " + name);
+			const {
+				description: existingDescription,
+				options: existingOptions
+			} = existingCommand;
+
+			if (
+				existingDescription !== description ||
+				this.areOptionsDifferent(existingOptions, discordOptions)
+			) {
+				await existingCommand.edit({
+					description,
+					options: discordOptions
+				});
+				console.log(`Updated slash command ${name}`);
+				return;
+			}
+
+			console.log(`Command ${name} already exists`);
 			return;
 		}
 
 		await commands.create({ name, description, options: discordOptions });
+		console.log(`Registered slash command ${name}`);
 	}
 
 	async delete(commandName: string, guildId?: string) {

@@ -1,4 +1,4 @@
-import { Client } from "discord.js";
+import { ApplicationCommandOption, ApplicationCommandOptionData, Client } from "discord.js";
 import { Options } from "../types/options.js";
 export default class SlashCommands {
     private _client;
@@ -8,6 +8,10 @@ export default class SlashCommands {
     }>, {
         guild: import("discord.js").GuildResolvable;
     }, null> | undefined>;
+    areOptionsDifferent(existingOptions: (ApplicationCommandOption & {
+        nameLocalized?: string;
+        descriptionLocalized?: string;
+    })[], newOptions: ApplicationCommandOptionData[]): boolean;
     create(name: string, description: string, options: Options, guildId?: string): Promise<void>;
     delete(commandName: string, guildId?: string): Promise<void>;
 }
