@@ -40,11 +40,16 @@ export default class SlashCommands {
 			options
 		).map(([key, value]) => {
 			const optionType = getApplicationCommandOptionType(value.type);
+
 			return {
-				name: value.name ?? key,
+				name: (value.name ?? key).replace(" ", "-"),
 				description: value.description,
 				type: optionType,
-				required: value.required ?? false
+				required: value.required ?? false,
+				choices:
+					value.type === "string" || value.type == "number"
+						? value.choices
+						: undefined
 			} as ApplicationCommandOptionData;
 		});
 
