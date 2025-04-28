@@ -47,7 +47,6 @@ export class Handlers {
 }
 
 export * from "./builders.js";
-export { createEnv } from "./env.js";
 export type * from "./types/command.js";
 export type * from "./types/options.js";
 export type * from "./types/validations.js";
