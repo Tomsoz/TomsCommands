@@ -18,6 +18,11 @@
 	],
 	"author": "Tomsoz, tomsoz.xyz",
 	"license": "GNU GPLv3",
+	"peerDependencies": {
+		"@t3-oss/env-core": "^0.13.0",
+		"discord.js": "^14.18.0",
+		"zod": "^3.24.2"
+	},
 	"devDependencies": {
 		"@types/node": "^22.13.9",
 		"discord.js": "^14.18.0",
@@ -30,7 +35,6 @@
 	"dependencies": {
 		"dotenv": "^16.4.7",
 		"drizzle-orm": "^0.40.0",
-		"mysql2": "^3.13.0",
-		"zod": "^3.24.2"
+		"mysql2": "^3.13.0"
 	}
 }
