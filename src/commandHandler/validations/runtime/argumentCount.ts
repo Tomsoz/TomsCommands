@@ -1,5 +1,5 @@
 import { runtimeValidation } from "../../../builders.js";
-import { TextOnErrorArgs } from "../../../types/command.js";
+import { TextCommand, TextOnErrorArgs } from "../../../types/command.js";
 
 const validation = runtimeValidation({
 	type: "text",
@@ -8,6 +8,7 @@ const validation = runtimeValidation({
 
 		const { command, message } = args;
 		const { options } = command;
+		const textCommand = command as TextCommand<typeof options>;
 		const providedArgs = message.content.split(/\s+/);
 		const commandName = providedArgs
 			.shift()
@@ -20,12 +21,13 @@ const validation = runtimeValidation({
 
 		const onErrorArgs: TextOnErrorArgs<typeof options> = {
 			...args,
+			command: textCommand,
 			error:
 				providedArgs.length < requiredArgs.length
 					? "tooLittleArgs"
 					: "tooManyArgs"
 		};
-		await command.onError?.(onErrorArgs);
+		await textCommand.onError?.(onErrorArgs);
 
 		return providedArgs.length >= requiredArgs.length;
 	}

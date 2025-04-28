@@ -10,17 +10,21 @@ import {
 import { BooleanOption, Options, TransformOptions } from "./options.js";
 
 export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly";
-export type BaseCallbackArgs<O extends Options, C extends Command<O>> = {
-	command: C;
-	guild: Guild | null;
-	args: TransformOptions<O>;
-};
 
-export type BaseOnErrorArgs<O extends Options, C extends Command<O>> = {
-	command: C;
-	guild: Guild | null;
-	args: O;
-	error: ValidationError;
+// Helper type to determine guild type
+export type GuildTypeFor<
+	G extends boolean | undefined,
+	D extends boolean | undefined
+> = G extends true ? Guild : D extends true ? null : Guild | null;
+
+export type BaseCallbackArgs<
+	O extends Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = {
+	command: BaseCommand<O, G, D>;
+	args: TransformOptions<O>;
+	guild: GuildTypeFor<G, D>;
 };
 
 export type InvocationContext =
@@ -35,37 +39,61 @@ export type InvocationContext =
 			message?: undefined;
 	  };
 
-export type BaseCommand<O extends Options = Options> = {
+export type BaseCommand<
+	O extends Options = Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = {
 	name: string;
 	description: string;
 	options: O;
 	devOnly?: boolean;
+	ownerOnly?: boolean;
+	guildOnly?: G;
+	dmOnly?: D;
 };
 
-export type TextCommand<O extends Options = Options> = BaseCommand<O> & {
+export type TextCommand<
+	O extends Options = Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = BaseCommand<O, G, D> & {
 	type: "text";
 	callback: (
-		args: TextCallbackArgs<O>
+		args: TextCallbackArgs<O, G, D>
 	) => Promise<
 		MessageReplyOptions | MessagePayload | string | null | undefined | void
 	>;
-	onError?: (args: TextOnErrorArgs<O>) => void;
+	onError?: (args: TextOnErrorArgs<O, G, D>) => void;
 };
-export type TextCallbackArgs<O extends Options> = BaseCallbackArgs<
-	O,
-	TextCommand<O>
-> & { message: Message };
-export type TextOnErrorArgs<O extends Options> = BaseOnErrorArgs<
-	O,
-	TextCommand<O>
->;
 
-export type SlashCommand<O extends Options = Options> = BaseCommand<O> & {
+export type TextCallbackArgs<
+	O extends Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = BaseCallbackArgs<O, G, D> & { message: Message };
+
+export type TextOnErrorArgs<
+	O extends Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = {
+	command: TextCommand<O, G, D>;
+	guild: Guild | null;
+	args: O;
+	error: ValidationError;
+};
+
+export type SlashCommand<
+	O extends Options = Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = BaseCommand<O, G, D> & {
 	type: "slash";
 	delete?: boolean;
 	defer?: boolean | keyof O;
 	callback: (
-		args: SlashCallbackArgs<O>
+		args: SlashCallbackArgs<O, G, D>
 	) => Promise<
 		| InteractionReplyOptions
 		| InteractionEditReplyOptions
@@ -74,18 +102,31 @@ export type SlashCommand<O extends Options = Options> = BaseCommand<O> & {
 		| undefined
 		| void
 	>;
-	onError?: (args: SlashOnErrorArgs<O>) => void;
+	onError?: (args: SlashOnErrorArgs<O, G, D>) => void;
 };
-export type SlashCallbackArgs<O extends Options> = BaseCallbackArgs<
-	O,
-	SlashCommand<O>
-> & { interaction: CommandInteraction };
-export type SlashOnErrorArgs<O extends Options> = BaseOnErrorArgs<
-	O,
-	SlashCommand<O>
->;
 
-export type HybridCommand<O extends Options = Options> = BaseCommand<O> & {
+export type SlashCallbackArgs<
+	O extends Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = BaseCallbackArgs<O, G, D> & { interaction: CommandInteraction };
+
+export type SlashOnErrorArgs<
+	O extends Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = {
+	command: SlashCommand<O, G, D>;
+	guild: Guild | null;
+	args: O;
+	error: ValidationError;
+};
+
+export type HybridCommand<
+	O extends Options = Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = BaseCommand<O, G, D> & {
 	type: "hybrid";
 	delete?: boolean;
 	defer?:
@@ -94,7 +135,7 @@ export type HybridCommand<O extends Options = Options> = BaseCommand<O> & {
 				[K in keyof O as O[K] extends BooleanOption ? K : never]: O[K];
 		  };
 	callback: (
-		args: HybridCallbackArgs<O>
+		args: HybridCallbackArgs<O, G, D>
 	) => Promise<
 		| MessageReplyOptions
 		| MessagePayload
@@ -105,23 +146,31 @@ export type HybridCommand<O extends Options = Options> = BaseCommand<O> & {
 		| undefined
 		| void
 	>;
-	onError?: (args: HybridOnErrorArgs<O>) => void;
+	onError?: (args: HybridOnErrorArgs<O, G, D>) => void;
 };
-export type HybridCallbackArgs<O extends Options> = BaseCallbackArgs<
-	O,
-	HybridCommand<O>
-> &
-	InvocationContext;
-export type HybridOnErrorArgs<O extends Options> = BaseOnErrorArgs<
-	O,
-	HybridCommand<O>
-> &
-	InvocationContext;
 
-export type Command<O extends Options = Options> =
-	| TextCommand<O>
-	| SlashCommand<O>
-	| HybridCommand<O>;
+export type HybridCallbackArgs<
+	O extends Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = BaseCallbackArgs<O, G, D> & InvocationContext;
+
+export type HybridOnErrorArgs<
+	O extends Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = {
+	command: HybridCommand<O, G, D>;
+	guild: Guild | null;
+	args: O;
+	error: ValidationError;
+} & InvocationContext;
+
+export type Command<
+	O extends Options = Options,
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = TextCommand<O, G, D> | SlashCommand<O, G, D> | HybridCommand<O, G, D>;
 
 export type CallbackArgs<O extends Options> =
 	| TextCallbackArgs<O>

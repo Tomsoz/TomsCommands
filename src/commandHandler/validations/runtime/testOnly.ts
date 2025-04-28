@@ -1,5 +1,5 @@
 import { runtimeValidation } from "../../../builders.js";
-import { TextCallbackArgs } from "../../../types/command.js";
+import { Command, TextCallbackArgs } from "../../../types/command.js";
 import { Options } from "../../../types/options.js";
 
 const validation = runtimeValidation({
@@ -15,7 +15,7 @@ const validation = runtimeValidation({
 				...(args as TextCallbackArgs<Options>),
 				error: "devOnly"
 			};
-			await command.onError?.(errorArgs as any);
+			await (command as Command<Options>).onError?.(errorArgs as any);
 
 			return false;
 		}
