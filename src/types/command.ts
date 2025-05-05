@@ -1,12 +1,14 @@
 import {
 	CommandInteraction,
 	Guild,
+	GuildMember,
 	InteractionEditReplyOptions,
 	InteractionReplyOptions,
 	Message,
 	MessagePayload,
 	MessageReplyOptions,
-	PermissionFlagsBits
+	PermissionFlagsBits,
+	User
 } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
 
@@ -32,6 +34,7 @@ export type BaseCallbackArgs<
 	command: BaseCommand<O, G, D>;
 	args: TransformOptions<O>;
 	guild: GuildTypeFor<G, D>;
+	user: User | GuildMember;
 };
 
 export type InvocationContext =

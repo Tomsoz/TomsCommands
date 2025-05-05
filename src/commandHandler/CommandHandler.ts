@@ -161,7 +161,13 @@ class CommandHandler {
 			args: options,
 			command: command.commandObject,
 			interaction,
-			message
+			message,
+			user:
+				message?.member ??
+				interaction?.member ??
+				message?.author ??
+				interaction?.user ??
+				null
 		} as CallbackArgs<typeof options>;
 
 		await this.processCommand(
