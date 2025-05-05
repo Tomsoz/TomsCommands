@@ -1,22 +1,33 @@
-import { Client } from "discord.js";
-import { drizzle } from "drizzle-orm/mysql2";
+import { Client, ClientEvents } from "discord.js";
 import CommandHandler from "./commandHandler/CommandHandler.js";
+import { EventHandler } from "./eventHandler/EventHandler.js";
+
+export type EventHandlerOptions = {
+	dir?: string;
+} & {
+	[K in keyof ClientEvents]?: {
+		[key: string]: (...args: any[]) => Promise<boolean>;
+	};
+};
+
 export class Handlers {
 	private _devGuilds: string[];
 	private _prefix: string | undefined;
+	private _commandHandler: CommandHandler | undefined;
+	private _eventHandler: EventHandler | undefined;
 
 	constructor({
 		client,
 		commandsDir,
-		databaseUrl,
 		prefix,
-		devGuilds = []
+		devGuilds = [],
+		events = {}
 	}: {
 		client: Client<boolean>;
 		commandsDir?: string;
-		databaseUrl?: string;
 		prefix?: string;
 		devGuilds?: string[];
+		events?: EventHandlerOptions;
 	}) {
 		if (!client || !(client as Client).isReady())
 			throw new Error("Client is required and must be ready");
@@ -24,12 +35,20 @@ export class Handlers {
 		this._devGuilds = devGuilds;
 		this._prefix = prefix;
 
-		if (databaseUrl) {
-			this.connectToDatabase(databaseUrl);
+		if (commandsDir) {
+			this._commandHandler = new CommandHandler({
+				instance: this,
+				commandsDir,
+				client
+			});
 		}
 
-		if (commandsDir) {
-			new CommandHandler({ instance: this, commandsDir, client });
+		if (events?.dir) {
+			this._eventHandler = new EventHandler({
+				instance: this,
+				events,
+				client
+			});
 		}
 	}
 
@@ -41,8 +60,12 @@ export class Handlers {
 		return this._devGuilds;
 	}
 
-	connectToDatabase(databaseUrl: string) {
-		const db = drizzle({ connection: { uri: databaseUrl } });
+	get commandHandler() {
+		return this._commandHandler;
+	}
+
+	get eventHandler() {
+		return this._eventHandler;
 	}
 }
 

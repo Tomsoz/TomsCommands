@@ -127,6 +127,7 @@ export default class SlashCommands {
 				) ||
 				permissions.some(
 					(permission) =>
+						existingCommand.defaultMemberPermissions &&
 						!existingCommand.defaultMemberPermissions?.has(
 							permission
 						)

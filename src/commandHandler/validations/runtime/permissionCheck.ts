@@ -9,10 +9,10 @@ const validation = runtimeValidation({
 		if (!permissions || permissions.length === 0) return true;
 
 		let member: GuildMember | null | undefined;
-		if ("message" in args) {
-			member = args.message?.member;
-		} else if ("interaction" in args) {
-			member = args.interaction?.member as GuildMember | null;
+		if ("message" in args && args.message) {
+			member = args.message.member;
+		} else if ("interaction" in args && args.interaction) {
+			member = args.interaction.member as GuildMember | null;
 		}
 		if (!member) {
 			await (command as any).onError?.({

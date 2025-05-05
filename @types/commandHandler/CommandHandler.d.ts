@@ -16,10 +16,9 @@ declare class CommandHandler {
         commandsDir: string;
         client: Client;
     });
+    get commands(): Map<string, CommandObject>;
     readFiles(): Promise<void>;
     runCommand(command: CommandObject, options: Options, message?: Message, interaction?: CommandInteraction): Promise<void>;
-    messageListener(client: Client): void;
-    interactionListener(client: Client): void;
     processCommand<O extends Options>(command: Command<O>, validations: RuntimeValidation[], data: CallbackArgs<O>): Promise<void>;
     getValidations<T extends ValidationType>(type: T): Promise<GetValidation<T>[]>;
 }

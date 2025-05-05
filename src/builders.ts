@@ -1,4 +1,5 @@
 import { Command } from "./types/command.js";
+import { Event } from "./types/event.js";
 import { Choice, Option, OptionalOption, Options } from "./types/options.js";
 import { RuntimeValidation, SyntaxValidation } from "./types/validations.js";
 
@@ -33,4 +34,8 @@ export function runtimeValidation(validation: RuntimeValidation) {
 
 export function syntaxValidation(validation: SyntaxValidation) {
 	return validation;
+}
+
+export function event(event: Event) {
+	return event;
 }

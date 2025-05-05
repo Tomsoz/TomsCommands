@@ -5,22 +5,26 @@ export const dirExists = (dir: string) => {
 	return fs.existsSync(dir);
 };
 
-export const getAllFiles = (dir: string) => {
+export const getAllFiles = (dir: string, foldersOnly = false) => {
 	const files = fs.readdirSync(dir, { withFileTypes: true });
-	let commandFiles: string[] = [];
+	let filesFound: string[] = [];
 
 	for (const file of files) {
-		if (!file.name.endsWith(".js") && !file.name.endsWith(".ts")) continue;
-
 		const filePath = path.join(dir, file.name);
 		if (file.isDirectory()) {
-			commandFiles = commandFiles.concat(getAllFiles(filePath));
+			if (foldersOnly) {
+				filesFound.push(filePath);
+			} else {
+				filesFound = [...filesFound, ...getAllFiles(filePath)];
+			}
 		} else {
-			commandFiles.push(filePath);
+			if (!file.name.endsWith(".js") && !file.name.endsWith(".ts"))
+				continue;
+			filesFound.push(filePath);
 		}
 	}
 
-	return commandFiles;
+	return filesFound;
 };
 
 export const createDir = (dir: string) => {

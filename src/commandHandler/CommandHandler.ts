@@ -18,14 +18,13 @@ import {
 	SlashCallbackArgs,
 	TextCallbackArgs
 } from "../types/command.js";
-import { Options, TransformOptions } from "../types/options.js";
+import { Options } from "../types/options.js";
 import {
 	GetValidation,
 	RuntimeValidation,
 	ValidationType
 } from "../types/validations.js";
 import { createDir, dirExists, getAllFiles } from "../utils/filesystem.js";
-import { parseArgument } from "../utils/parseArgument.js";
 import { CommandObject } from "./Command.js";
 import SlashCommands from "./SlashCommands.js";
 
@@ -53,10 +52,10 @@ class CommandHandler {
 		this._prefix = instance.prefix;
 
 		this.readFiles();
-		if (this._prefix) {
-			this.messageListener(client);
-		}
-		this.interactionListener(client);
+	}
+
+	get commands() {
+		return this._commands;
 	}
 
 	async readFiles() {
@@ -73,7 +72,11 @@ class CommandHandler {
 			const command: Command = commandObj.default;
 
 			const commandName =
-				command.name ?? file.split(/[/\\]/).pop()?.split(".")[0];
+				command.name ??
+				file
+					.split(/[\/\\]/g)
+					.pop()
+					?.split(".")[0];
 			if (!commandName) {
 				throw new Error(`Command name not found in file name ${file}`);
 			}
@@ -109,13 +112,7 @@ class CommandHandler {
 				}
 			}
 
-			if (command.type === "text" || command.type === "hybrid") {
-				if (this._prefix)
-					this._commands.set(
-						commandObject.commandName,
-						commandObject
-					);
-			}
+			this._commands.set(commandObject.commandName, commandObject);
 
 			if (command.type === "slash" || command.type === "hybrid") {
 				const options = command.options ?? {};
@@ -174,104 +171,6 @@ class CommandHandler {
 		);
 	}
 
-	messageListener(client: Client) {
-		client.on("messageCreate", async (message) => {
-			if (message.author.bot || !this._prefix) return;
-
-			const { content } = message;
-			if (!content.startsWith(this._prefix)) return;
-
-			const args = content.split(/\s+/);
-			const commandName = args
-				.shift()
-				?.substring(this._prefix.length)
-				?.trim();
-			if (!commandName || commandName.length === 0) return;
-
-			const command = this._commands.get(commandName.toLowerCase());
-			if (!command) return;
-
-			const options = command.commandObject.options ?? {};
-			const typedOptions: TransformOptions<typeof options> = options;
-
-			let i = 0;
-			const newOptions = Object.fromEntries(
-				Object.entries(typedOptions).map(([key, value]) => {
-					if (i >= args.length) {
-						if (value.required) {
-							throw new Error(`Missing required option: ${key}`);
-						}
-						value.value = value.default;
-					} else {
-						value.value = parseArgument(args[i], value.type);
-					}
-					i++;
-					return [key, value];
-				})
-			);
-
-			await this.runCommand(command, newOptions, message);
-		});
-	}
-
-	interactionListener(client: Client) {
-		client.on("interactionCreate", async (interaction) => {
-			if (!interaction.isCommand()) return;
-
-			const command = this._commands.get(interaction.commandName);
-			if (!command) return;
-
-			const options = command.commandObject.options ?? {};
-			const typedOptions: TransformOptions<typeof options> = options;
-			const finalOptions: Options = {};
-			interaction.options.data.map((option) => {
-				const typedOption = typedOptions[option.name];
-				if (!typedOption) return;
-				if (!option.value && typedOption.required) {
-					throw new Error(`Missing required option: ${option.name}`);
-				} else if (!option.value) {
-					typedOption.value = typedOption.default;
-				} else {
-					typedOption.value = parseArgument(
-						option.value,
-						typedOption.type
-					);
-				}
-				finalOptions[option.name] = typedOption;
-			});
-
-			let ephemeral = true;
-			if (
-				"ephemeral" in command.commandObject &&
-				command.commandObject.ephemeral !== undefined
-			) {
-				if (typeof command.commandObject.ephemeral === "boolean") {
-					ephemeral = command.commandObject.ephemeral;
-				} else {
-					const ephemeralOption = command.commandObject
-						.ephemeral as keyof Options;
-
-					// @ts-ignore
-					ephemeral = finalOptions[ephemeralOption].value;
-				}
-			}
-
-			if (
-				"defer" in command.commandObject &&
-				command.commandObject.defer
-			) {
-				await interaction.deferReply({ ephemeral });
-			}
-
-			await this.runCommand(
-				command,
-				finalOptions,
-				undefined,
-				interaction
-			);
-		});
-	}
-
 	async processCommand<O extends Options>(
 		command: Command<O>,
 		validations: RuntimeValidation[],
@@ -317,7 +216,10 @@ class CommandHandler {
 					dataArgs.message.reply(message as MessagePayload);
 				}
 			} else if (dataArgs.interaction) {
-				if (dataArgs.interaction.replied) {
+				if (
+					dataArgs.interaction.replied ||
+					dataArgs.interaction.deferred
+				) {
 					if (typeof message === "string") {
 						const component = new TextDisplayBuilder().setContent(
 							message
