@@ -259,7 +259,7 @@ class CommandHandler {
 			const dataArgs = data as SlashCallbackArgs<O>;
 			const message = await command.callback(dataArgs);
 			if (!message) return;
-			if (dataArgs.interaction.replied) {
+			if (dataArgs.interaction.replied || dataArgs.interaction.deferred) {
 				if (typeof message === "string") {
 					const component = new TextDisplayBuilder().setContent(
 						message
