@@ -40,8 +40,10 @@ export default event({
 				const ephemeralOption = command.commandObject
 					.ephemeral as keyof Options;
 
-				// @ts-ignore
-				ephemeral = finalOptions[ephemeralOption].value;
+				if (finalOptions[ephemeralOption]) {
+					// @ts-ignore
+					ephemeral = finalOptions[ephemeralOption].value;
+				}
 			}
 		}
 
