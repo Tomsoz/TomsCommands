@@ -124,6 +124,7 @@ class CommandHandler {
 							command.name ?? commandObject.commandName,
 							command.description,
 							options,
+							command.permissions,
 							command.dmOnly,
 							command.guildOnly,
 							guild
@@ -134,6 +135,7 @@ class CommandHandler {
 						command.name ?? commandObject.commandName,
 						command.description,
 						options,
+						command.permissions,
 						command.dmOnly,
 						command.guildOnly
 					);

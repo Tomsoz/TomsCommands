@@ -4,6 +4,7 @@ import {
 	Client,
 	InteractionContextType
 } from "discord.js";
+import { Permission } from "../types/command.js";
 import { Options } from "../types/options.js";
 import { getApplicationCommandOptionType } from "../utils/typing.js";
 
@@ -66,6 +67,7 @@ export default class SlashCommands {
 		name: string,
 		description: string,
 		options: Options,
+		permissions: Permission[] = [],
 		dmOnly?: boolean,
 		guildOnly?: boolean,
 		guildId?: string
@@ -122,6 +124,12 @@ export default class SlashCommands {
 				this.areOptionsDifferent(existingOptions, discordOptions) ||
 				contexts.some(
 					(context) => !existingCommand.contexts?.includes(context)
+				) ||
+				permissions.some(
+					(permission) =>
+						!existingCommand.defaultMemberPermissions?.has(
+							permission
+						)
 				)
 			) {
 				await existingCommand.edit({
@@ -141,7 +149,8 @@ export default class SlashCommands {
 			name,
 			description,
 			options: discordOptions,
-			contexts
+			contexts,
+			defaultMemberPermissions: permissions
 		});
 		console.log(`Registered slash command ${name}`);
 	}

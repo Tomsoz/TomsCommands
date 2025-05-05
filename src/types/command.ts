@@ -5,7 +5,8 @@ import {
 	InteractionReplyOptions,
 	Message,
 	MessagePayload,
-	MessageReplyOptions
+	MessageReplyOptions,
+	PermissionFlagsBits
 } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
 
@@ -14,7 +15,8 @@ export type ValidationError =
 	| "tooLittleArgs"
 	| "devOnly"
 	| "noGuild"
-	| "noDm";
+	| "noDm"
+	| "invalidPermissions";
 
 // Helper type to determine guild type
 export type GuildTypeFor<
@@ -44,6 +46,8 @@ export type InvocationContext =
 			message?: undefined;
 	  };
 
+export type Permission = keyof typeof PermissionFlagsBits;
+
 export type BaseCommand<
 	O extends Options = Options,
 	G extends boolean | undefined = undefined,
@@ -55,6 +59,7 @@ export type BaseCommand<
 	devOnly?: boolean;
 	guildOnly?: G;
 	dmOnly?: D;
+	permissions?: Permission[];
 };
 
 export type TextCommand<

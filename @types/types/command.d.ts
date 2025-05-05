@@ -1,6 +1,6 @@
-import { CommandInteraction, Guild, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions } from "discord.js";
+import { CommandInteraction, Guild, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions, PermissionFlagsBits } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
-export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly" | "noGuild" | "noDm";
+export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly" | "noGuild" | "noDm" | "invalidPermissions";
 export type GuildTypeFor<G extends boolean | undefined, D extends boolean | undefined> = G extends true ? Guild : D extends true ? null : Guild | null;
 export type BaseCallbackArgs<O extends Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = {
     command: BaseCommand<O, G, D>;
@@ -16,6 +16,7 @@ export type InvocationContext = {
     interaction: CommandInteraction;
     message?: undefined;
 };
+export type Permission = keyof typeof PermissionFlagsBits;
 export type BaseCommand<O extends Options = Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = {
     name: string;
     description: string;
@@ -23,6 +24,7 @@ export type BaseCommand<O extends Options = Options, G extends boolean | undefin
     devOnly?: boolean;
     guildOnly?: G;
     dmOnly?: D;
+    permissions?: Permission[];
 };
 export type TextCommand<O extends Options = Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseCommand<O, G, D> & {
     type: "text";
