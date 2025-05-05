@@ -30,7 +30,7 @@ export class EventHandler {
 		client: Client;
 	}) {
 		this._instance = instance;
-		this._eventsDir = events.dir;
+		this._eventsDir = events?.dir;
 		this._client = client;
 
 		delete events.dir;

@@ -43,13 +43,11 @@ export class Handlers {
 			});
 		}
 
-		if (events?.dir) {
-			this._eventHandler = new EventHandler({
-				instance: this,
-				events,
-				client
-			});
-		}
+		this._eventHandler = new EventHandler({
+			instance: this,
+			events,
+			client
+		});
 	}
 
 	get prefix() {
