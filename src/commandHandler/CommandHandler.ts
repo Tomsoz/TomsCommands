@@ -4,8 +4,9 @@ import {
 	InteractionEditReplyOptions,
 	InteractionReplyOptions,
 	Message,
+	MessageFlags,
 	MessagePayload,
-	MessageReplyOptions
+	TextDisplayBuilder
 } from "discord.js";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -290,23 +291,98 @@ class CommandHandler {
 			const dataArgs = data as TextCallbackArgs<O>;
 			const message = await command.callback(dataArgs);
 			if (!message) return;
-			dataArgs.message.reply(message);
+			if (typeof message === "string") {
+				const component = new TextDisplayBuilder().setContent(message);
+				dataArgs.message.reply({
+					flags: MessageFlags.IsComponentsV2,
+					components: [component]
+				});
+			} else {
+				dataArgs.message.reply(message as MessagePayload);
+			}
 		} else if (command.type === "hybrid") {
 			const dataArgs = data as HybridCallbackArgs<O>;
 			const message = await command.callback(dataArgs);
 			if (!message) return;
 			if (dataArgs.message) {
-				dataArgs.message.reply(
-					message as string | MessagePayload | MessageReplyOptions
-				);
+				if (typeof message === "string") {
+					const component = new TextDisplayBuilder().setContent(
+						message
+					);
+					dataArgs.message.reply({
+						flags: MessageFlags.IsComponentsV2,
+						components: [component]
+					});
+				} else {
+					dataArgs.message.reply(message as MessagePayload);
+				}
 			} else if (dataArgs.interaction) {
 				if (dataArgs.interaction.replied) {
+					if (typeof message === "string") {
+						const component = new TextDisplayBuilder().setContent(
+							message
+						);
+						dataArgs.interaction.editReply({
+							flags: MessageFlags.IsComponentsV2,
+							components: [component]
+						});
+					} else {
+						dataArgs.interaction.editReply(
+							message as
+								| string
+								| MessagePayload
+								| InteractionEditReplyOptions
+						);
+					}
+				} else {
+					if (typeof message === "string") {
+						const component = new TextDisplayBuilder().setContent(
+							message
+						);
+						dataArgs.interaction.reply({
+							flags: MessageFlags.IsComponentsV2,
+							components: [component]
+						});
+					} else {
+						dataArgs.interaction.reply(
+							message as
+								| string
+								| MessagePayload
+								| InteractionReplyOptions
+						);
+					}
+				}
+			}
+		} else if (command.type === "slash") {
+			const dataArgs = data as SlashCallbackArgs<O>;
+			const message = await command.callback(dataArgs);
+			if (!message) return;
+			if (dataArgs.interaction.replied) {
+				if (typeof message === "string") {
+					const component = new TextDisplayBuilder().setContent(
+						message
+					);
+					dataArgs.interaction.editReply({
+						flags: MessageFlags.IsComponentsV2,
+						components: [component]
+					});
+				} else {
 					dataArgs.interaction.editReply(
 						message as
 							| string
 							| MessagePayload
 							| InteractionEditReplyOptions
 					);
+				}
+			} else {
+				if (typeof message === "string") {
+					const component = new TextDisplayBuilder().setContent(
+						message
+					);
+					dataArgs.interaction.reply({
+						flags: MessageFlags.IsComponentsV2,
+						components: [component]
+					});
 				} else {
 					dataArgs.interaction.reply(
 						message as
@@ -315,22 +391,6 @@ class CommandHandler {
 							| InteractionReplyOptions
 					);
 				}
-			}
-		} else if (command.type === "slash") {
-			const dataArgs = data as SlashCallbackArgs<O>;
-			const message = await command.callback(dataArgs);
-			if (!message) return;
-			if (dataArgs.interaction.replied) {
-				dataArgs.interaction.editReply(
-					message as
-						| string
-						| MessagePayload
-						| InteractionEditReplyOptions
-				);
-			} else {
-				dataArgs.interaction.reply(
-					message as string | MessagePayload | InteractionReplyOptions
-				);
 			}
 		}
 	}
