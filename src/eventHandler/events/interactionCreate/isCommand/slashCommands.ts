@@ -1,7 +1,7 @@
 import { CommandInteraction, MessageFlags } from "discord.js";
 import { event } from "../../../../builders.js";
 import { Options, TransformOptions } from "../../../../types/options.js";
-import { parseArgument } from "../../../../utils/parseArgument.js";
+import { parseSlashArgument } from "../../../../utils/parseArgument.js";
 
 export default event({
 	callback: async (interaction: CommandInteraction, instance) => {
@@ -21,8 +21,8 @@ export default event({
 			} else if (!option.value) {
 				typedOption.value = typedOption.default;
 			} else {
-				typedOption.value = parseArgument(
-					option.value,
+				typedOption.value = parseSlashArgument(
+					option,
 					typedOption.type
 				);
 			}
