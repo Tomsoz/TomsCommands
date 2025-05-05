@@ -8,18 +8,19 @@ const validation = runtimeValidation({
 
 		const { command, message } = args;
 		const { options } = command;
-		const textCommand = command as TextCommand<typeof options>;
+		const to = options || {};
+		const textCommand = command as TextCommand<typeof to>;
 		const providedArgs = message.content.split(/\s+/);
 		const commandName = providedArgs
 			.shift()
 			?.substring(instance.prefix.length)
 			?.trim();
 
-		const requiredArgs = Object.entries(options).filter(
+		const requiredArgs = Object.entries(to).filter(
 			([_, option]) => option.required
 		);
 
-		const onErrorArgs: TextOnErrorArgs<typeof options> = {
+		const onErrorArgs: TextOnErrorArgs<typeof to> = {
 			...args,
 			command: textCommand,
 			error:

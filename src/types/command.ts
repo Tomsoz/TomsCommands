@@ -55,7 +55,7 @@ export type BaseCommand<
 > = {
 	name: string;
 	description: string;
-	options: O;
+	options?: O;
 	devOnly?: boolean;
 	guildOnly?: G;
 	dmOnly?: D;

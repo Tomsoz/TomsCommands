@@ -20,7 +20,7 @@ export type Permission = keyof typeof PermissionFlagsBits;
 export type BaseCommand<O extends Options = Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = {
     name: string;
     description: string;
-    options: O;
+    options?: O;
     devOnly?: boolean;
     guildOnly?: G;
     dmOnly?: D;
