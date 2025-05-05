@@ -2,11 +2,12 @@ import { CommandInteraction, Guild, GuildMember, InteractionEditReplyOptions, In
 import { BooleanOption, Options, TransformOptions } from "./options.js";
 export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly" | "noGuild" | "noDm" | "invalidPermissions";
 export type GuildTypeFor<G extends boolean | undefined, D extends boolean | undefined> = G extends true ? Guild : D extends true ? null : Guild | null;
+export type UserTypeFor<G extends boolean | undefined, D extends boolean | undefined> = G extends true ? GuildMember : D extends true ? User : User | GuildMember;
 export type BaseCallbackArgs<O extends Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = {
     command: BaseCommand<O, G, D>;
     args: TransformOptions<O>;
     guild: GuildTypeFor<G, D>;
-    user: User | GuildMember;
+    user: UserTypeFor<G, D>;
 };
 export type InvocationContext = {
     invocationType: "text";

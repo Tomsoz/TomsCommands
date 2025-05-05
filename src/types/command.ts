@@ -26,6 +26,11 @@ export type GuildTypeFor<
 	D extends boolean | undefined
 > = G extends true ? Guild : D extends true ? null : Guild | null;
 
+export type UserTypeFor<
+	G extends boolean | undefined,
+	D extends boolean | undefined
+> = G extends true ? GuildMember : D extends true ? User : User | GuildMember;
+
 export type BaseCallbackArgs<
 	O extends Options,
 	G extends boolean | undefined = undefined,
@@ -34,7 +39,7 @@ export type BaseCallbackArgs<
 	command: BaseCommand<O, G, D>;
 	args: TransformOptions<O>;
 	guild: GuildTypeFor<G, D>;
-	user: User | GuildMember;
+	user: UserTypeFor<G, D>;
 };
 
 export type InvocationContext =
