@@ -237,6 +237,29 @@ class CommandHandler {
 				finalOptions[option.name] = typedOption;
 			});
 
+			let ephemeral = true;
+			if (
+				"ephemeral" in command.commandObject &&
+				command.commandObject.ephemeral !== undefined
+			) {
+				if (typeof command.commandObject.ephemeral === "boolean") {
+					ephemeral = command.commandObject.ephemeral;
+				} else {
+					const ephemeralOption = command.commandObject
+						.ephemeral as keyof Options;
+
+					// @ts-ignore
+					ephemeral = finalOptions[ephemeralOption].value;
+				}
+			}
+
+			if (
+				"defer" in command.commandObject &&
+				command.commandObject.defer
+			) {
+				await interaction.deferReply({ ephemeral });
+			}
+
 			await this.runCommand(
 				command,
 				finalOptions,

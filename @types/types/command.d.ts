@@ -41,7 +41,8 @@ export type TextOnErrorArgs<O extends Options, G extends boolean | undefined = u
 export type SlashCommand<O extends Options = Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseCommand<O, G, D> & {
     type: "slash";
     delete?: boolean;
-    defer?: boolean | keyof O;
+    defer?: boolean;
+    ephemeral?: boolean | keyof O;
     callback: (args: SlashCallbackArgs<O, G, D>) => Promise<InteractionReplyOptions | InteractionEditReplyOptions | string | null | undefined | void>;
     onError?: (args: SlashOnErrorArgs<O, G, D>) => void;
 };
@@ -57,7 +58,8 @@ export type SlashOnErrorArgs<O extends Options, G extends boolean | undefined = 
 export type HybridCommand<O extends Options = Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseCommand<O, G, D> & {
     type: "hybrid";
     delete?: boolean;
-    defer?: boolean | keyof {
+    defer?: boolean;
+    ephemeral?: boolean | keyof {
         [K in keyof O as O[K] extends BooleanOption ? K : never]: O[K];
     };
     callback: (args: HybridCallbackArgs<O, G, D>) => Promise<MessageReplyOptions | MessagePayload | InteractionReplyOptions | InteractionEditReplyOptions | string | null | undefined | void>;

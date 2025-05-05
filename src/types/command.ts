@@ -95,7 +95,8 @@ export type SlashCommand<
 > = BaseCommand<O, G, D> & {
 	type: "slash";
 	delete?: boolean;
-	defer?: boolean | keyof O;
+	defer?: boolean;
+	ephemeral?: boolean | keyof O;
 	callback: (
 		args: SlashCallbackArgs<O, G, D>
 	) => Promise<
@@ -133,7 +134,8 @@ export type HybridCommand<
 > = BaseCommand<O, G, D> & {
 	type: "hybrid";
 	delete?: boolean;
-	defer?:
+	defer?: boolean;
+	ephemeral?:
 		| boolean
 		| keyof {
 				[K in keyof O as O[K] extends BooleanOption ? K : never]: O[K];
