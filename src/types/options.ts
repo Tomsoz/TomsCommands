@@ -7,12 +7,11 @@ export type PrimitiveTypeMap = {
 	user: User;
 	channel: Channel;
 	role: Role;
-	mentionable: User | Channel | Role;
+	mentionable: User | Role;
 	attachment: Attachment;
 };
 
 export type OptionCore<T extends keyof PrimitiveTypeMap> = {
-	name?: string;
 	description: string;
 	type: T;
 };

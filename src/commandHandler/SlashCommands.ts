@@ -99,7 +99,7 @@ export default class SlashCommands {
 			const optionType = getApplicationCommandOptionType(value.type);
 
 			return {
-				name: (value.name ?? key).replace(" ", "-"),
+				name: key.replace(" ", "-"),
 				description: value.description,
 				type: optionType,
 				required: value.required ?? false,

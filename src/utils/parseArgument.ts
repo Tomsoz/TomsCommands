@@ -10,7 +10,11 @@ export function parseArgument<T extends keyof PrimitiveTypeMap>(
 		case "number":
 			return Number(arg) as PrimitiveTypeMap[T];
 		case "boolean":
-			return (arg === "true") as PrimitiveTypeMap[T];
+			return typeof arg == "boolean"
+				? (arg as PrimitiveTypeMap[T])
+				: String(arg).toLowerCase() == "true"
+				? (true as PrimitiveTypeMap[T])
+				: (false as PrimitiveTypeMap[T]);
 		case "user":
 			return arg as PrimitiveTypeMap[T];
 		case "channel":
