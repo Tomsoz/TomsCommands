@@ -1,6 +1,6 @@
 import { CommandInteraction, Guild, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
-export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly";
+export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly" | "noGuild" | "noDm";
 export type GuildTypeFor<G extends boolean | undefined, D extends boolean | undefined> = G extends true ? Guild : D extends true ? null : Guild | null;
 export type BaseCallbackArgs<O extends Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = {
     command: BaseCommand<O, G, D>;
@@ -21,7 +21,6 @@ export type BaseCommand<O extends Options = Options, G extends boolean | undefin
     description: string;
     options: O;
     devOnly?: boolean;
-    ownerOnly?: boolean;
     guildOnly?: G;
     dmOnly?: D;
 };

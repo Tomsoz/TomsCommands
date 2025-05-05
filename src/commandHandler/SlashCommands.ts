@@ -1,7 +1,8 @@
 import {
 	ApplicationCommandOption,
 	ApplicationCommandOptionData,
-	Client
+	Client,
+	InteractionContextType
 } from "discord.js";
 import { Options } from "../types/options.js";
 import { getApplicationCommandOptionType } from "../utils/typing.js";
@@ -65,6 +66,8 @@ export default class SlashCommands {
 		name: string,
 		description: string,
 		options: Options,
+		dmOnly?: boolean,
+		guildOnly?: boolean,
 		guildId?: string
 	) {
 		const commands = await this.getCommands(guildId);
@@ -73,6 +76,20 @@ export default class SlashCommands {
 				"Commands object is not set, aborting command creation!"
 			);
 		}
+
+		const contexts = [];
+		if (dmOnly)
+			contexts.push(
+				InteractionContextType.BotDM,
+				InteractionContextType.PrivateChannel
+			);
+		else if (guildOnly) contexts.push(InteractionContextType.Guild);
+		else
+			contexts.push(
+				InteractionContextType.BotDM,
+				InteractionContextType.Guild,
+				InteractionContextType.PrivateChannel
+			);
 
 		const discordOptions: ApplicationCommandOptionData[] = Object.entries(
 			options
@@ -102,11 +119,15 @@ export default class SlashCommands {
 
 			if (
 				existingDescription !== description ||
-				this.areOptionsDifferent(existingOptions, discordOptions)
+				this.areOptionsDifferent(existingOptions, discordOptions) ||
+				contexts.some(
+					(context) => !existingCommand.contexts?.includes(context)
+				)
 			) {
 				await existingCommand.edit({
 					description,
-					options: discordOptions
+					options: discordOptions,
+					contexts
 				});
 				console.log(`Updated slash command ${name}`);
 				return;
@@ -116,7 +137,12 @@ export default class SlashCommands {
 			return;
 		}
 
-		await commands.create({ name, description, options: discordOptions });
+		await commands.create({
+			name,
+			description,
+			options: discordOptions,
+			contexts
+		});
 		console.log(`Registered slash command ${name}`);
 	}
 

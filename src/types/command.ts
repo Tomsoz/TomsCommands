@@ -9,7 +9,12 @@ import {
 } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
 
-export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly";
+export type ValidationError =
+	| "tooManyArgs"
+	| "tooLittleArgs"
+	| "devOnly"
+	| "noGuild"
+	| "noDm";
 
 // Helper type to determine guild type
 export type GuildTypeFor<
@@ -48,7 +53,6 @@ export type BaseCommand<
 	description: string;
 	options: O;
 	devOnly?: boolean;
-	ownerOnly?: boolean;
 	guildOnly?: G;
 	dmOnly?: D;
 };

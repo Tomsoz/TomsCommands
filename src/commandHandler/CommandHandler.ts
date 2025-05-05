@@ -124,6 +124,8 @@ class CommandHandler {
 							command.name ?? commandObject.commandName,
 							command.description,
 							options,
+							command.dmOnly,
+							command.guildOnly,
 							guild
 						);
 					}
@@ -131,7 +133,9 @@ class CommandHandler {
 					await this._slashCommands.create(
 						command.name ?? commandObject.commandName,
 						command.description,
-						options
+						options,
+						command.dmOnly,
+						command.guildOnly
 					);
 				}
 			}
