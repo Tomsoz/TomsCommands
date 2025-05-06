@@ -1,6 +1,6 @@
 {
 	"name": "toms-commands",
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"description": "A collection of discord handlers for my discord bots",
 	"main": "dist/index.js",
 	"types": "@types/index.d.ts",
