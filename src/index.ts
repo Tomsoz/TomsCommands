@@ -11,6 +11,7 @@ export type EventHandlerOptions = {
 };
 
 export class Handlers {
+	private _client: Client<boolean>;
 	private _devGuilds: string[];
 	private _prefix: string | undefined;
 	private _commandHandler: CommandHandler | undefined;
@@ -32,6 +33,7 @@ export class Handlers {
 		if (!client || !(client as Client).isReady())
 			throw new Error("Client is required and must be ready");
 
+		this._client = client;
 		this._devGuilds = devGuilds;
 		this._prefix = prefix;
 
@@ -48,6 +50,10 @@ export class Handlers {
 			events,
 			client
 		});
+	}
+
+	get client() {
+		return this._client;
 	}
 
 	get prefix() {

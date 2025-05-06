@@ -1,4 +1,5 @@
 import {
+	Client,
 	CommandInteraction,
 	Guild,
 	GuildMember,
@@ -40,6 +41,7 @@ export type BaseCallbackArgs<
 	args: TransformOptions<O>;
 	guild: GuildTypeFor<G, D>;
 	user: UserTypeFor<G, D>;
+	client: Client;
 };
 
 export type InvocationContext =

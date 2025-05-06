@@ -9,6 +9,7 @@ export type EventHandlerOptions = {
     };
 };
 export declare class Handlers {
+    private _client;
     private _devGuilds;
     private _prefix;
     private _commandHandler;
@@ -20,6 +21,7 @@ export declare class Handlers {
         devGuilds?: string[];
         events?: EventHandlerOptions;
     });
+    get client(): Client<boolean>;
     get prefix(): string | undefined;
     get devGuilds(): string[];
     get commandHandler(): CommandHandler | undefined;

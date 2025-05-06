@@ -167,7 +167,8 @@ class CommandHandler {
 				interaction?.member ??
 				message?.author ??
 				interaction?.user ??
-				null
+				null,
+			client: this._instance.client
 		} as CallbackArgs<typeof options>;
 
 		await this.processCommand(

@@ -12,20 +12,23 @@ export default event({
 
 		const options = command.commandObject.options ?? {};
 		const typedOptions: TransformOptions<typeof options> = options;
-		const finalOptions: Options = {};
+		const finalOptions: TransformOptions<typeof options> = {};
 		Object.keys(typedOptions).forEach((key) => {
-			const option = typedOptions[key]
+			const option = typedOptions[key];
 			if (!option) return;
 
-			let value = parseSlashArgument(interaction.options.get(key, option.required), option.type)
+			let value = parseSlashArgument(
+				interaction.options.get(key, option.required),
+				option.type
+			);
 			if (!value && option.required) {
 				throw new Error(`Missing required option: ${option.name}`);
 			} else if (!value) {
-				value = option.default
+				value = option.default;
 			}
 
-			option.value = value
-			finalOptions[key] = option
+			option.value = value;
+			finalOptions[key] = option;
 		});
 
 		let ephemeral = true;
@@ -41,7 +44,9 @@ export default event({
 
 				if (finalOptions[ephemeralOption]) {
 					// @ts-ignore
-					ephemeral =  finalOptions[ephemeralOption] && finalOptions[ephemeralOption].value;
+					ephemeral =
+						finalOptions[ephemeralOption] &&
+						finalOptions[ephemeralOption].value;
 				}
 			}
 		}

@@ -1,5 +1,5 @@
-import { CommandInteractionOption, CommandInteractionOptionResolver } from "discord.js";
-import { Option, PrimitiveTypeMap } from "../types/options.js";
+import { CommandInteractionOption } from "discord.js";
+import { PrimitiveTypeMap } from "../types/options.js";
 
 export function parseArgument<T extends keyof PrimitiveTypeMap>(
 	arg: any,
@@ -35,13 +35,14 @@ export function parseSlashArgument<T extends keyof PrimitiveTypeMap>(
 	option: CommandInteractionOption,
 	type: T
 ): PrimitiveTypeMap[T] | null {
+	if (option?.value === null || option?.value === undefined) return null;
 	switch (type) {
 		case "string":
-			return String(option.value)  as PrimitiveTypeMap[T]
+			return String(option.value) as PrimitiveTypeMap[T];
 		case "number":
 			return Number(option.value) as PrimitiveTypeMap[T];
 		case "boolean":
-			return Boolean(option.value) as PrimitiveTypeMap[T]
+			return Boolean(option.value) as PrimitiveTypeMap[T];
 		case "user":
 			return (option.member ?? option.user) as PrimitiveTypeMap[T];
 		case "channel":
@@ -49,7 +50,9 @@ export function parseSlashArgument<T extends keyof PrimitiveTypeMap>(
 		case "role":
 			return option.role as PrimitiveTypeMap[T];
 		case "mentionable":
-			return ((option.member ?? option.user) ?? option.role) as PrimitiveTypeMap[T];
+			return (option.member ??
+				option.user ??
+				option.role) as PrimitiveTypeMap[T];
 		case "attachment":
 			return option.attachment as PrimitiveTypeMap[T];
 		default:

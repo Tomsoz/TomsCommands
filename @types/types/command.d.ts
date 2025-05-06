@@ -1,4 +1,4 @@
-import { CommandInteraction, Guild, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions, PermissionFlagsBits, User } from "discord.js";
+import { Client, CommandInteraction, Guild, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions, PermissionFlagsBits, User } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
 export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly" | "noGuild" | "noDm" | "invalidPermissions";
 export type GuildTypeFor<G extends boolean | undefined, D extends boolean | undefined> = G extends true ? Guild : D extends true ? null : Guild | null;
@@ -8,6 +8,7 @@ export type BaseCallbackArgs<O extends Options, G extends boolean | undefined = 
     args: TransformOptions<O>;
     guild: GuildTypeFor<G, D>;
     user: UserTypeFor<G, D>;
+    client: Client;
 };
 export type InvocationContext = {
     invocationType: "text";
