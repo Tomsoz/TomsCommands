@@ -1,37 +1,37 @@
 {
-  "name": "toms-commands",
-  "version": "1.0.8",
-  "description": "A collection of discord handlers for my discord bots",
-  "main": "dist/index.js",
-  "types": "@types/index.d.ts",
-  "type": "module",
-  "scripts": {
-    "tsc": "tsc -w --outDir dist --rootDir src --skipLibCheck",
-    "compile": "tsc && node index.js",
-    "dev": "nodemon -e ts --exec \"npm run compile\""
-  },
-  "keywords": [
-    "discord",
-    "handlers",
-    "discord.js",
-    "discord-handlers"
-  ],
-  "author": "Tomsoz, tomsoz.dev",
-  "license": "GNU GPLv3",
-  "peerDependencies": {
-    "@t3-oss/env-core": "^0.13.0",
-    "discord.js": "^14.19.3",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@types/node": "^22.13.9",
-    "discord.js": "^14.19.3",
-    "drizzle-kit": "^0.30.5",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.2",
-    "@types/bun": "latest"
-  },
-  "private": true
+	"name": "toms-commands",
+	"version": "1.0.8",
+	"description": "A collection of discord handlers for my discord bots",
+	"main": "dist/index.js",
+	"types": "@types/index.d.ts",
+	"type": "module",
+	"scripts": {
+		"tsc": "tsc -w --outDir dist --rootDir src --skipLibCheck",
+		"compile": "tsc && node index.js",
+		"dev": "nodemon -e ts --exec \"npm run compile\""
+	},
+	"keywords": [
+		"discord",
+		"handlers",
+		"discord.js",
+		"discord-handlers"
+	],
+	"author": "Tomsoz, tomsoz.dev",
+	"license": "GNU GPLv3",
+	"peerDependencies": {
+		"@t3-oss/env-core": "^0.13.0",
+		"discord.js": "^14.19.3",
+		"zod": "^3.24.2"
+	},
+	"devDependencies": {
+		"@types/node": "^22.13.9",
+		"discord.js": "^14.19.3",
+		"drizzle-kit": "^0.30.5",
+		"ts-node": "^10.9.2",
+		"ts-node-dev": "^2.0.0",
+		"tsx": "^4.19.3",
+		"typescript": "^5.8.2",
+		"@types/bun": "latest"
+	},
+	"private": true
 }

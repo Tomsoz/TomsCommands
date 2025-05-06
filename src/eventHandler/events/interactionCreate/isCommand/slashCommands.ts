@@ -13,20 +13,19 @@ export default event({
 		const options = command.commandObject.options ?? {};
 		const typedOptions: TransformOptions<typeof options> = options;
 		const finalOptions: Options = {};
-		interaction.options.data.map((option) => {
-			const typedOption = typedOptions[option.name];
-			if (!typedOption) return;
-			if (!option.value && typedOption.required) {
+		Object.keys(typedOptions).forEach((key) => {
+			const option = typedOptions[key]
+			if (!option) return;
+
+			let value = parseSlashArgument(interaction.options.get(key, option.required), option.type)
+			if (!value && option.required) {
 				throw new Error(`Missing required option: ${option.name}`);
-			} else if (!option.value) {
-				typedOption.value = typedOption.default;
-			} else {
-				typedOption.value = parseSlashArgument(
-					option,
-					typedOption.type
-				);
+			} else if (!value) {
+				value = option.default
 			}
-			finalOptions[option.name] = typedOption;
+
+			option.value = value
+			finalOptions[key] = option
 		});
 
 		let ephemeral = true;
