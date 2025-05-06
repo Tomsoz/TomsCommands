@@ -42,7 +42,7 @@ export default event({
 
 				if (finalOptions[ephemeralOption]) {
 					// @ts-ignore
-					ephemeral = finalOptions[ephemeralOption].value;
+					ephemeral =  finalOptions[ephemeralOption] && finalOptions[ephemeralOption].value;
 				}
 			}
 		}
