@@ -70,6 +70,7 @@ class CommandHandler {
 			const fileUrl = pathToFileURL(file).href;
 			const commandObj = await import(fileUrl);
 			const command: Command = commandObj.default;
+			if (!command) continue;
 
 			const commandName =
 				command.name ??
