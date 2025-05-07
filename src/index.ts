@@ -30,9 +30,6 @@ export class Handlers {
 		devGuilds?: string[];
 		events?: EventHandlerOptions;
 	}) {
-		if (!client || !(client as Client).isReady())
-			throw new Error("Client is required and must be ready");
-
 		this._client = client;
 		this._devGuilds = devGuilds;
 		this._prefix = prefix;
