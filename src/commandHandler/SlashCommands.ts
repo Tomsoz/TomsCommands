@@ -10,22 +10,36 @@ import { getApplicationCommandOptionType } from "../utils/typing.js";
 
 export default class SlashCommands {
 	private _client: Client;
+	private _readyPromise: Promise<void>;
 
 	constructor(client: Client) {
 		this._client = client;
+		this._readyPromise = new Promise((resolve) => {
+			if (this._client.isReady()) {
+				resolve();
+			} else {
+				this._client.once("ready", () => resolve());
+			}
+		});
+	}
+
+	private async ensureReady() {
+		await this._readyPromise;
 	}
 
 	async getCommands(guildId?: string) {
-		let commands;
+		await this.ensureReady();
 
+		let commands;
 		if (guildId) {
 			const guild = await this._client.guilds.fetch(guildId);
+			await guild.commands.fetch();
 			commands = guild.commands;
 		} else {
-			commands = await this._client.application?.commands;
+			await this._client.application?.commands.fetch();
+			commands = this._client.application?.commands;
 		}
 
-		await commands?.fetch({});
 		return commands;
 	}
 

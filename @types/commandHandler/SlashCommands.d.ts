@@ -3,7 +3,9 @@ import { Permission } from "../types/command.js";
 import { Options } from "../types/options.js";
 export default class SlashCommands {
     private _client;
+    private _readyPromise;
     constructor(client: Client);
+    private ensureReady;
     getCommands(guildId?: string): Promise<import("discord.js").GuildApplicationCommandManager | import("discord.js").ApplicationCommandManager<import("discord.js").ApplicationCommand<{
         guild: import("discord.js").GuildResolvable;
     }>, {
