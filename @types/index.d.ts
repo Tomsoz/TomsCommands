@@ -14,18 +14,21 @@ export declare class Handlers {
     private _prefix;
     private _commandHandler;
     private _eventHandler;
-    constructor({ client, commandsDir, prefix, devGuilds, events }: {
+    private _isAlwaysComponentsV2;
+    constructor({ client, commandsDir, prefix, devGuilds, events, isAlwaysComponentsV2 }: {
         client: Client<boolean>;
         commandsDir?: string;
         prefix?: string;
         devGuilds?: string[];
         events?: EventHandlerOptions;
+        isAlwaysComponentsV2?: boolean;
     });
     get client(): Client<boolean>;
     get prefix(): string | undefined;
     get devGuilds(): string[];
     get commandHandler(): CommandHandler | undefined;
     get eventHandler(): EventHandler | undefined;
+    get isAlwaysComponentsV2(): boolean;
 }
 export * from "./builders.js";
 export type * from "./types/command.js";

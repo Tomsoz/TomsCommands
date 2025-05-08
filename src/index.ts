@@ -16,23 +16,27 @@ export class Handlers {
 	private _prefix: string | undefined;
 	private _commandHandler: CommandHandler | undefined;
 	private _eventHandler: EventHandler | undefined;
+	private _isAlwaysComponentsV2: boolean;
 
 	constructor({
 		client,
 		commandsDir,
 		prefix,
 		devGuilds = [],
-		events = {}
+		events = {},
+		isAlwaysComponentsV2 = false
 	}: {
 		client: Client<boolean>;
 		commandsDir?: string;
 		prefix?: string;
 		devGuilds?: string[];
 		events?: EventHandlerOptions;
+		isAlwaysComponentsV2?: boolean;
 	}) {
 		this._client = client;
 		this._devGuilds = devGuilds;
 		this._prefix = prefix;
+		this._isAlwaysComponentsV2 = isAlwaysComponentsV2;
 
 		if (commandsDir) {
 			this._commandHandler = new CommandHandler({
@@ -67,6 +71,10 @@ export class Handlers {
 
 	get eventHandler() {
 		return this._eventHandler;
+	}
+
+	get isAlwaysComponentsV2() {
+		return this._isAlwaysComponentsV2;
 	}
 }
 

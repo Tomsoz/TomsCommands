@@ -5,7 +5,7 @@ import {
 	InteractionReplyOptions,
 	Message,
 	MessageFlags,
-	MessagePayload,
+	MessageReplyOptions,
 	TextDisplayBuilder
 } from "discord.js";
 import path from "path";
@@ -205,10 +205,25 @@ class CommandHandler {
 					components: [component]
 				});
 			} else {
-				dataArgs.message.reply(message as MessagePayload);
+				let newMsg = message as MessageReplyOptions;
+				if (this._instance.isAlwaysComponentsV2) {
+					if (!newMsg.flags)
+						newMsg.flags = MessageFlags.IsComponentsV2;
+					// @ts-ignore discordjs bug
+					else newMsg.flags |= MessageFlags.IsComponentsV2;
+				}
+				dataArgs.message.reply(newMsg);
 			}
 		} else if (command.type === "hybrid") {
 			const dataArgs = data as HybridCallbackArgs<O>;
+			const isEphemeral =
+				typeof command.ephemeral === "boolean"
+					? command.ephemeral
+					: command.ephemeral !== undefined &&
+					  "value" in dataArgs.args[command.ephemeral]
+					? // @ts-ignore typescript bein strange
+					  dataArgs.args[command.ephemeral].value
+					: false;
 			const message = await command.callback(dataArgs);
 			if (!message) return;
 			if (dataArgs.message) {
@@ -221,7 +236,14 @@ class CommandHandler {
 						components: [component]
 					});
 				} else {
-					dataArgs.message.reply(message as MessagePayload);
+					let newMsg = message as MessageReplyOptions;
+					if (this._instance.isAlwaysComponentsV2) {
+						if (!newMsg.flags)
+							newMsg.flags = MessageFlags.IsComponentsV2;
+						// @ts-ignore discordjs bug
+						else newMsg.flags |= MessageFlags.IsComponentsV2;
+					}
+					dataArgs.message.reply(newMsg);
 				}
 			} else if (dataArgs.interaction) {
 				if (
@@ -237,12 +259,14 @@ class CommandHandler {
 							components: [component]
 						});
 					} else {
-						dataArgs.interaction.editReply(
-							message as
-								| string
-								| MessagePayload
-								| InteractionEditReplyOptions
-						);
+						let newMsg = message as InteractionEditReplyOptions;
+						if (this._instance.isAlwaysComponentsV2) {
+							if (!newMsg.flags)
+								newMsg.flags = MessageFlags.IsComponentsV2;
+							// @ts-ignore discordjs bug
+							else newMsg.flags |= MessageFlags.IsComponentsV2;
+						}
+						dataArgs.interaction.editReply(newMsg);
 					}
 				} else {
 					if (typeof message === "string") {
@@ -250,21 +274,39 @@ class CommandHandler {
 							message
 						);
 						dataArgs.interaction.reply({
-							flags: MessageFlags.IsComponentsV2,
+							flags:
+								MessageFlags.IsComponentsV2 |
+								(isEphemeral ? MessageFlags.Ephemeral : 0),
 							components: [component]
 						});
 					} else {
-						dataArgs.interaction.reply(
-							message as
-								| string
-								| MessagePayload
-								| InteractionReplyOptions
-						);
+						let newMsg = message as InteractionReplyOptions;
+						if (this._instance.isAlwaysComponentsV2) {
+							if (!newMsg.flags)
+								newMsg.flags = MessageFlags.IsComponentsV2;
+							// @ts-ignore discordjs bug
+							else newMsg.flags |= MessageFlags.IsComponentsV2;
+						}
+						if (isEphemeral) {
+							if (!newMsg.flags)
+								newMsg.flags = MessageFlags.Ephemeral;
+							// @ts-ignore discordjs bug
+							else newMsg.flags |= MessageFlags.Ephemeral;
+						}
+						dataArgs.interaction.reply(newMsg);
 					}
 				}
 			}
 		} else if (command.type === "slash") {
 			const dataArgs = data as SlashCallbackArgs<O>;
+			const isEphemeral =
+				typeof command.ephemeral === "boolean"
+					? command.ephemeral
+					: command.ephemeral !== undefined &&
+					  "value" in dataArgs.args[command.ephemeral]
+					? // @ts-ignore typescript bein strange
+					  dataArgs.args[command.ephemeral].value
+					: false;
 			const message = await command.callback(dataArgs);
 			if (!message) return;
 			if (dataArgs.interaction.replied || dataArgs.interaction.deferred) {
@@ -277,12 +319,14 @@ class CommandHandler {
 						components: [component]
 					});
 				} else {
-					dataArgs.interaction.editReply(
-						message as
-							| string
-							| MessagePayload
-							| InteractionEditReplyOptions
-					);
+					let newMsg = message as InteractionEditReplyOptions;
+					if (this._instance.isAlwaysComponentsV2) {
+						if (!newMsg.flags)
+							newMsg.flags = MessageFlags.IsComponentsV2;
+						// @ts-ignore discordjs bug
+						else newMsg.flags |= MessageFlags.IsComponentsV2;
+					}
+					dataArgs.interaction.editReply(newMsg);
 				}
 			} else {
 				if (typeof message === "string") {
@@ -290,16 +334,27 @@ class CommandHandler {
 						message
 					);
 					dataArgs.interaction.reply({
-						flags: MessageFlags.IsComponentsV2,
+						flags:
+							MessageFlags.IsComponentsV2 |
+							(isEphemeral ? MessageFlags.Ephemeral : 0),
 						components: [component]
 					});
 				} else {
-					dataArgs.interaction.reply(
-						message as
-							| string
-							| MessagePayload
-							| InteractionReplyOptions
-					);
+					let newMsg = message as InteractionReplyOptions;
+					if (this._instance.isAlwaysComponentsV2) {
+						if (!newMsg.flags)
+							newMsg.flags = MessageFlags.IsComponentsV2;
+						// @ts-ignore discordjs bug
+						else newMsg.flags |= MessageFlags.IsComponentsV2;
+					}
+					if (isEphemeral) {
+						if (!newMsg.flags)
+							newMsg.flags = MessageFlags.Ephemeral;
+						// @ts-ignore discordjs bug
+						else newMsg.flags |= MessageFlags.Ephemeral;
+					}
+					console.log(newMsg);
+					dataArgs.interaction.reply(newMsg);
 				}
 			}
 		}

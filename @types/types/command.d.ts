@@ -1,5 +1,9 @@
-import { Client, CommandInteraction, Guild, GuildMember, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions, PermissionFlagsBits, User } from "discord.js";
+import { Client, CommandInteraction, Guild, GuildMember, Interaction, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions, PermissionFlagsBits, User } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
+export type GuildInteraction<I extends Interaction> = I & {
+    guild: Guild;
+    guildId: string;
+};
 export type ValidationError = "tooManyArgs" | "tooLittleArgs" | "devOnly" | "noGuild" | "noDm" | "invalidPermissions";
 export type GuildTypeFor<G extends boolean | undefined, D extends boolean | undefined> = G extends true ? Guild : D extends true ? null : Guild | null;
 export type UserTypeFor<G extends boolean | undefined, D extends boolean | undefined> = G extends true ? GuildMember : D extends true ? User : User | GuildMember;

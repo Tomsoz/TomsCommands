@@ -3,6 +3,7 @@ import {
 	CommandInteraction,
 	Guild,
 	GuildMember,
+	Interaction,
 	InteractionEditReplyOptions,
 	InteractionReplyOptions,
 	Message,
@@ -12,6 +13,11 @@ import {
 	User
 } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
+
+export type GuildInteraction<I extends Interaction> = I & {
+	guild: Guild;
+	guildId: string;
+};
 
 export type ValidationError =
 	| "tooManyArgs"
