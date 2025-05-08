@@ -137,7 +137,9 @@ export class EventHandler {
 						!(await dynamicValidation(...arguments))
 					)
 						continue;
-					event.callback(...arguments, instance);
+					if (event.callback) {
+						event.callback(...arguments, instance);
+					}
 				}
 			});
 		}
