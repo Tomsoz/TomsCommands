@@ -353,7 +353,6 @@ class CommandHandler {
 						// @ts-ignore discordjs bug
 						else newMsg.flags |= MessageFlags.Ephemeral;
 					}
-					console.log(newMsg);
 					dataArgs.interaction.reply(newMsg);
 				}
 			}
