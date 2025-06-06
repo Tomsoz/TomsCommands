@@ -1,5 +1,6 @@
 import { Client, CommandInteraction, Guild, GuildMember, Interaction, InteractionEditReplyOptions, InteractionReplyOptions, Message, MessagePayload, MessageReplyOptions, PermissionFlagsBits, User } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
+import { Component } from "./components.js";
 export type GuildInteraction<I extends Interaction> = I & {
     guild: Guild;
     guildId: string;
@@ -32,6 +33,7 @@ export type BaseCommand<O extends Options = Options, G extends boolean | undefin
     guildOnly?: G;
     dmOnly?: D;
     permissions?: Permission[];
+    components?: Component<G, D>[];
 };
 export type TextCommand<O extends Options = Options, G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseCommand<O, G, D> & {
     type: "text";

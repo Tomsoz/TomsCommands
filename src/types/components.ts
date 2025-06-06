@@ -4,6 +4,7 @@ import {
 	Interaction,
 	MentionableSelectMenuInteraction,
 	ModalSubmitInteraction,
+	RoleSelectMenuInteraction,
 	StringSelectMenuInteraction,
 	UserSelectMenuInteraction,
 } from "discord.js";
@@ -12,7 +13,13 @@ import { GuildTypeFor, UserTypeFor } from "./command.js";
 export type Component<
 	G extends boolean | undefined = undefined,
 	D extends boolean | undefined = undefined
-> = ButtonComponent<G, D> | StringSelectMenuComponent<G, D>;
+> =
+	| ButtonComponent<G, D>
+	| StringSelectMenuComponent<G, D>
+	| MentionableSelectMenuComponent<G, D>
+	| ChannelSelectMenuComponent<G, D>
+	| UserSelectMenuComponent<G, D>
+	| ModalComponent<G, D>;
 
 export type BaseComponent = {
 	customId: string;
@@ -75,6 +82,16 @@ export type UserSelectMenuComponent<
 	type: "userSelectMenu";
 	execute: (
 		args: BaseComponentExecuteArgs<UserSelectMenuInteraction, G, D>
+	) => Promise<void>;
+};
+
+export type roleSelectMenuComponent<
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = BaseComponent & {
+	type: "roleSelectMenu";
+	execute: (
+		args: BaseComponentExecuteArgs<RoleSelectMenuInteraction, G, D>
 	) => Promise<void>;
 };
 

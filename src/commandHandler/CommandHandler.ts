@@ -6,7 +6,7 @@ import {
 	Message,
 	MessageFlags,
 	MessageReplyOptions,
-	TextDisplayBuilder
+	TextDisplayBuilder,
 } from "discord.js";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -16,17 +16,18 @@ import {
 	Command,
 	HybridCallbackArgs,
 	SlashCallbackArgs,
-	TextCallbackArgs
+	TextCallbackArgs,
 } from "../types/command.js";
 import { Options } from "../types/options.js";
 import {
 	GetValidation,
 	RuntimeValidation,
-	ValidationType
+	ValidationType,
 } from "../types/validations.js";
 import { createDir, dirExists, getAllFiles } from "../utils/filesystem.js";
 import { CommandObject } from "./Command.js";
 import SlashCommands from "./SlashCommands.js";
+import { componentFunctions } from "../eventHandler/events/interactionCreate/components.js";
 
 class CommandHandler {
 	private _instance: Handlers;
@@ -40,7 +41,7 @@ class CommandHandler {
 	constructor({
 		instance,
 		commandsDir,
-		client
+		client,
 	}: {
 		instance: Handlers;
 		commandsDir: string;
@@ -114,6 +115,9 @@ class CommandHandler {
 			}
 
 			this._commands.set(commandObject.commandName, commandObject);
+			if (command.components) {
+				componentFunctions.set(commandObject, command.components);
+			}
 
 			if (command.type === "slash" || command.type === "hybrid") {
 				const options = command.options ?? {};
@@ -169,7 +173,7 @@ class CommandHandler {
 				message?.author ??
 				interaction?.user ??
 				null,
-			client: this._instance.client
+			client: this._instance.client,
 		} as CallbackArgs<typeof options>;
 
 		await this.processCommand(
@@ -202,7 +206,7 @@ class CommandHandler {
 				const component = new TextDisplayBuilder().setContent(message);
 				dataArgs.message.reply({
 					flags: MessageFlags.IsComponentsV2,
-					components: [component]
+					components: [component],
 				});
 			} else {
 				let newMsg = message as MessageReplyOptions;
@@ -233,7 +237,7 @@ class CommandHandler {
 					);
 					dataArgs.message.reply({
 						flags: MessageFlags.IsComponentsV2,
-						components: [component]
+						components: [component],
 					});
 				} else {
 					let newMsg = message as MessageReplyOptions;
@@ -256,7 +260,7 @@ class CommandHandler {
 						);
 						dataArgs.interaction.editReply({
 							flags: MessageFlags.IsComponentsV2,
-							components: [component]
+							components: [component],
 						});
 					} else {
 						let newMsg = message as InteractionEditReplyOptions;
@@ -277,7 +281,7 @@ class CommandHandler {
 							flags:
 								MessageFlags.IsComponentsV2 |
 								(isEphemeral ? MessageFlags.Ephemeral : 0),
-							components: [component]
+							components: [component],
 						});
 					} else {
 						let newMsg = message as InteractionReplyOptions;
@@ -316,7 +320,7 @@ class CommandHandler {
 					);
 					dataArgs.interaction.editReply({
 						flags: MessageFlags.IsComponentsV2,
-						components: [component]
+						components: [component],
 					});
 				} else {
 					let newMsg = message as InteractionEditReplyOptions;
@@ -337,7 +341,7 @@ class CommandHandler {
 						flags:
 							MessageFlags.IsComponentsV2 |
 							(isEphemeral ? MessageFlags.Ephemeral : 0),
-						components: [component]
+						components: [component],
 					});
 				} else {
 					let newMsg = message as InteractionReplyOptions;
