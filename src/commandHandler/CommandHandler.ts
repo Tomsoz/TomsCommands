@@ -116,7 +116,13 @@ class CommandHandler {
 
 			this._commands.set(commandObject.commandName, commandObject);
 			if (command.components) {
-				componentFunctions.set(commandObject, command.components);
+				const comps = command.components.map((comp) => {
+					comp.customId = `${file.replace(/[/\\]/g, "-")}--${
+						comp.customId
+					}`;
+					return comp;
+				});
+				componentFunctions.set(commandObject, comps);
 			}
 
 			if (command.type === "slash" || command.type === "hybrid") {
