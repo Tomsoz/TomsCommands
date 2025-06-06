@@ -11,7 +11,7 @@ declare class CommandHandler {
     private _commands;
     private _validations;
     private _prefix;
-    constructor({ instance, commandsDir, client }: {
+    constructor({ instance, commandsDir, client, }: {
         instance: Handlers;
         commandsDir: string;
         client: Client;

@@ -2,6 +2,7 @@ import { CommandInteraction, MessageFlags } from "discord.js";
 import { event } from "../../../../builders.js";
 import { Options, TransformOptions } from "../../../../types/options.js";
 import { parseSlashArgument } from "../../../../utils/parseArgument.js";
+import { Component } from "../../../../types/components.js";
 
 export default event({
 	callback: async (interaction: CommandInteraction, instance) => {
@@ -54,7 +55,7 @@ export default event({
 		if ("defer" in command.commandObject && command.commandObject.defer) {
 			if (ephemeral) {
 				await interaction.deferReply({
-					flags: MessageFlags.Ephemeral
+					flags: MessageFlags.Ephemeral,
 				});
 			} else {
 				await interaction.deferReply();
@@ -67,5 +68,5 @@ export default event({
 			undefined,
 			interaction
 		);
-	}
+	},
 });
