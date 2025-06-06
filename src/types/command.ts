@@ -10,9 +10,10 @@ import {
 	MessagePayload,
 	MessageReplyOptions,
 	PermissionFlagsBits,
-	User
+	User,
 } from "discord.js";
 import { BooleanOption, Options, TransformOptions } from "./options.js";
+import { Component } from "./components.js";
 
 export type GuildInteraction<I extends Interaction> = I & {
 	guild: Guild;
@@ -76,6 +77,7 @@ export type BaseCommand<
 	guildOnly?: G;
 	dmOnly?: D;
 	permissions?: Permission[];
+	components?: Component<G, D>[];
 };
 
 export type TextCommand<
