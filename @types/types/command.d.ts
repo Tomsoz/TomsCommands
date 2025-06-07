@@ -14,6 +14,7 @@ export type BaseCallbackArgs<O extends Options, G extends boolean | undefined = 
     guild: GuildTypeFor<G, D>;
     user: UserTypeFor<G, D>;
     client: Client;
+    components?: Component[];
 };
 export type InvocationContext = {
     invocationType: "text";

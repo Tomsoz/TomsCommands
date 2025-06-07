@@ -11,37 +11,37 @@ export type BaseComponentExecuteArgs<I extends Interaction, G extends boolean | 
 };
 export type ButtonComponent<G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseComponent & {
     type: "button";
-    builder: ((...args: any) => ButtonBuilder) | ButtonBuilder;
+    builder: (builder: ButtonBuilder, ...args: any) => ButtonBuilder;
     execute: (args: BaseComponentExecuteArgs<ButtonInteraction, G, D>) => Promise<void>;
 };
 export type StringSelectMenuComponent<G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseComponent & {
     type: "stringSelectMenu";
-    builder: ((...args: any) => StringSelectMenuBuilder) | StringSelectMenuBuilder;
+    builder: (builder: StringSelectMenuBuilder, ...args: any) => StringSelectMenuBuilder;
     execute: (args: BaseComponentExecuteArgs<StringSelectMenuInteraction, G, D>) => Promise<void>;
 };
 export type MentionableSelectMenuComponent<G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseComponent & {
     type: "mentionableSelectMenu";
-    builder: ((...args: any) => MentionableSelectMenuBuilder) | MentionableSelectMenuBuilder;
+    builder: (builder: MentionableSelectMenuBuilder, ...args: any) => MentionableSelectMenuBuilder;
     execute: (args: BaseComponentExecuteArgs<MentionableSelectMenuInteraction, G, D>) => Promise<void>;
 };
 export type ChannelSelectMenuComponent<G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseComponent & {
     type: "channelSelectMenu";
-    builder: ((...args: any) => ChannelSelectMenuBuilder) | ChannelSelectMenuBuilder;
+    builder: (builder: ChannelSelectMenuBuilder, ...args: any) => ChannelSelectMenuBuilder;
     execute: (args: BaseComponentExecuteArgs<ChannelSelectMenuInteraction, G, D>) => Promise<void>;
 };
 export type UserSelectMenuComponent<G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseComponent & {
     type: "userSelectMenu";
-    builder: ((...args: any) => UserSelectMenuBuilder) | UserSelectMenuBuilder;
+    builder: (builder: UserSelectMenuBuilder, ...args: any) => UserSelectMenuBuilder;
     execute: (args: BaseComponentExecuteArgs<UserSelectMenuInteraction, G, D>) => Promise<void>;
 };
 export type RoleSelectMenuComponent<G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseComponent & {
     type: "roleSelectMenu";
-    builder: ((...args: any) => RoleSelectMenuBuilder) | RoleSelectMenuBuilder;
+    builder: (builder: RoleSelectMenuBuilder, ...args: any) => RoleSelectMenuBuilder;
     execute: (args: BaseComponentExecuteArgs<RoleSelectMenuInteraction, G, D>) => Promise<void>;
 };
 export type ModalComponent<G extends boolean | undefined = undefined, D extends boolean | undefined = undefined> = BaseComponent & {
     type: "modal";
-    builder: ((...args: any) => ModalBuilder) | ModalBuilder;
+    builder: (builder: ModalBuilder, ...args: any) => ModalBuilder;
     execute: (args: BaseComponentExecuteArgs<ModalSubmitInteraction, G, D>) => Promise<void>;
 };
 //# sourceMappingURL=components.d.ts.map

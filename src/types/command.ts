@@ -49,6 +49,7 @@ export type BaseCallbackArgs<
 	guild: GuildTypeFor<G, D>;
 	user: UserTypeFor<G, D>;
 	client: Client;
+	components?: Component[];
 };
 
 export type InvocationContext =

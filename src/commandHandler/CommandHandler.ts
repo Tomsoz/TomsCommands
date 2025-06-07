@@ -28,6 +28,7 @@ import { createDir, dirExists, getAllFiles } from "../utils/filesystem.js";
 import { CommandObject } from "./Command.js";
 import SlashCommands from "./SlashCommands.js";
 import { componentFunctions } from "../eventHandler/events/interactionCreate/components.js";
+import { getBuilderInstance } from "../utils/getBuilderInstance.js";
 
 class CommandHandler {
 	private _instance: Handlers;
@@ -180,6 +181,14 @@ class CommandHandler {
 				interaction?.user ??
 				null,
 			client: this._instance.client,
+			components: command.commandObject.components?.map(
+				(component) =>
+					(...args: any) =>
+						component.builder(
+							getBuilderInstance(component.type) as any, // cba maintaining types here ngl
+							...args
+						)
+			),
 		} as CallbackArgs<typeof options>;
 
 		await this.processCommand(

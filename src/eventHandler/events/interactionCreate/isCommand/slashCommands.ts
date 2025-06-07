@@ -2,7 +2,6 @@ import { CommandInteraction, MessageFlags } from "discord.js";
 import { event } from "../../../../builders.js";
 import { Options, TransformOptions } from "../../../../types/options.js";
 import { parseSlashArgument } from "../../../../utils/parseArgument.js";
-import { Component } from "../../../../types/components.js";
 
 export default event({
 	callback: async (interaction: CommandInteraction, instance) => {

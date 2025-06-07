@@ -1,0 +1,3 @@
+import { ButtonBuilder, ChannelSelectMenuBuilder, MentionableSelectMenuBuilder, ModalBuilder, StringSelectMenuBuilder, UserSelectMenuBuilder } from "discord.js";
+export declare const getBuilderInstance: (type: "button" | "stringSelectMenu" | "mentionableSelectMenu" | "userSelectMenu" | "channelSelectMenu" | "modal") => ButtonBuilder | ChannelSelectMenuBuilder | MentionableSelectMenuBuilder | ModalBuilder | StringSelectMenuBuilder | UserSelectMenuBuilder;
+//# sourceMappingURL=getBuilderInstance.d.ts.map
