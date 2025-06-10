@@ -1,4 +1,5 @@
 import {
+	ActionRowBuilder,
 	ButtonBuilder,
 	ButtonInteraction,
 	ChannelSelectMenuBuilder,
@@ -17,6 +18,11 @@ import {
 } from "discord.js";
 import { GuildTypeFor, UserTypeFor } from "./command.js";
 
+export type Components<
+	G extends boolean | undefined = undefined,
+	D extends boolean | undefined = undefined
+> = { [key: string]: Component<G, D> };
+
 export type Component<
 	G extends boolean | undefined = undefined,
 	D extends boolean | undefined = undefined
@@ -28,9 +34,7 @@ export type Component<
 	| UserSelectMenuComponent<G, D>
 	| ModalComponent<G, D>;
 
-export type BaseComponent = {
-	customId: string;
-};
+export type BaseComponent = {};
 
 export type BaseComponentExecuteArgs<
 	I extends Interaction,
@@ -47,7 +51,7 @@ export type ButtonComponent<
 	D extends boolean | undefined = undefined
 > = BaseComponent & {
 	type: "button";
-	builder: (builder: ButtonBuilder, ...args: any) => ButtonBuilder;
+	builder: (...args: any) => ButtonBuilder;
 	execute: (
 		args: BaseComponentExecuteArgs<ButtonInteraction, G, D>
 	) => Promise<void>;
@@ -58,10 +62,7 @@ export type StringSelectMenuComponent<
 	D extends boolean | undefined = undefined
 > = BaseComponent & {
 	type: "stringSelectMenu";
-	builder: (
-		builder: StringSelectMenuBuilder,
-		...args: any
-	) => StringSelectMenuBuilder;
+	builder: (...args: any) => ActionRowBuilder<StringSelectMenuBuilder>;
 	execute: (
 		args: BaseComponentExecuteArgs<StringSelectMenuInteraction, G, D>
 	) => Promise<void>;
@@ -72,10 +73,7 @@ export type MentionableSelectMenuComponent<
 	D extends boolean | undefined = undefined
 > = BaseComponent & {
 	type: "mentionableSelectMenu";
-	builder: (
-		builder: MentionableSelectMenuBuilder,
-		...args: any
-	) => MentionableSelectMenuBuilder;
+	builder: (...args: any) => ActionRowBuilder<MentionableSelectMenuBuilder>;
 	execute: (
 		args: BaseComponentExecuteArgs<MentionableSelectMenuInteraction, G, D>
 	) => Promise<void>;
@@ -86,10 +84,7 @@ export type ChannelSelectMenuComponent<
 	D extends boolean | undefined = undefined
 > = BaseComponent & {
 	type: "channelSelectMenu";
-	builder: (
-		builder: ChannelSelectMenuBuilder,
-		...args: any
-	) => ChannelSelectMenuBuilder;
+	builder: (...args: any) => ActionRowBuilder<ChannelSelectMenuBuilder>;
 	execute: (
 		args: BaseComponentExecuteArgs<ChannelSelectMenuInteraction, G, D>
 	) => Promise<void>;
@@ -100,10 +95,7 @@ export type UserSelectMenuComponent<
 	D extends boolean | undefined = undefined
 > = BaseComponent & {
 	type: "userSelectMenu";
-	builder: (
-		builder: UserSelectMenuBuilder,
-		...args: any
-	) => UserSelectMenuBuilder;
+	builder: (...args: any) => ActionRowBuilder<UserSelectMenuBuilder>;
 	execute: (
 		args: BaseComponentExecuteArgs<UserSelectMenuInteraction, G, D>
 	) => Promise<void>;
@@ -114,10 +106,7 @@ export type RoleSelectMenuComponent<
 	D extends boolean | undefined = undefined
 > = BaseComponent & {
 	type: "roleSelectMenu";
-	builder: (
-		builder: RoleSelectMenuBuilder,
-		...args: any
-	) => RoleSelectMenuBuilder;
+	builder: (...args: any) => ActionRowBuilder<RoleSelectMenuBuilder>;
 	execute: (
 		args: BaseComponentExecuteArgs<RoleSelectMenuInteraction, G, D>
 	) => Promise<void>;
@@ -128,7 +117,7 @@ export type ModalComponent<
 	D extends boolean | undefined = undefined
 > = BaseComponent & {
 	type: "modal";
-	builder: (builder: ModalBuilder, ...args: any) => ModalBuilder;
+	builder: (...args: any) => ModalBuilder;
 	execute: (
 		args: BaseComponentExecuteArgs<ModalSubmitInteraction, G, D>
 	) => Promise<void>;

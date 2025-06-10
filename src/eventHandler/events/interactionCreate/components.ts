@@ -1,9 +1,9 @@
 import { Interaction, InteractionType } from "discord.js";
 import { event } from "../../../index.js";
-import { Component } from "../../../types/components.js";
+import { Component, Components } from "../../../types/components.js";
 import { CommandObject } from "../../../commandHandler/Command.js";
 
-export const componentFunctions = new Map<CommandObject, Component[]>();
+export const componentFunctions = new Map<CommandObject, Components>();
 
 const getType = (interaction: Interaction) => {
 	let type = "";
@@ -36,14 +36,16 @@ export default event({
 		const type = getType(interaction);
 		if (!type || !isComponentInteraction(interaction)) return;
 
-		const componentArray = Array.from(componentFunctions.values()).flat();
+		const componentArray = Object.values(componentFunctions.values());
 		const component = componentArray.find(
 			(c) => c.type === type && c.customId === interaction.customId
 		);
 		if (!component) return;
 
 		const command = Array.from(componentFunctions.keys()).find((cmd) =>
-			componentFunctions.get(cmd)?.includes(component)
+			Object.values(componentFunctions.get(cmd) ?? {})?.includes(
+				component
+			)
 		);
 		if (!command) return;
 

@@ -1,4 +1,5 @@
 import {
+	AnyComponentBuilder,
 	Client,
 	CommandInteraction,
 	InteractionEditReplyOptions,
@@ -6,6 +7,7 @@ import {
 	Message,
 	MessageFlags,
 	MessageReplyOptions,
+	ModalBuilder,
 	TextDisplayBuilder,
 } from "discord.js";
 import path from "path";
@@ -29,6 +31,7 @@ import { CommandObject } from "./Command.js";
 import SlashCommands from "./SlashCommands.js";
 import { componentFunctions } from "../eventHandler/events/interactionCreate/components.js";
 import { getBuilderInstance } from "../utils/getBuilderInstance.js";
+import { Components } from "../types/components.js";
 
 class CommandHandler {
 	private _instance: Handlers;
@@ -117,12 +120,7 @@ class CommandHandler {
 
 			this._commands.set(commandObject.commandName, commandObject);
 			if (command.components) {
-				const comps = command.components.map((comp) => {
-					// comp.customId = `${file.replace(/[/\\]/g, "-")}--${
-					// 	comp.customId
-					// }`;
-					return comp;
-				});
+				const comps = command.components;
 				componentFunctions.set(commandObject, comps);
 			}
 
@@ -168,6 +166,15 @@ class CommandHandler {
 
 		if (message && command.commandObject.type === "slash") return;
 
+		const newComponents: {
+			[K in keyof typeof command.commandObject.components]: (typeof command.commandObject.components)[K]["builder"];
+		} = {};
+		Object.keys(command.commandObject?.components ?? {}).forEach((key) => {
+			if (!command.commandObject?.components) return;
+			// @ts-expect-error
+			newComponents[key] = command.commandObject.components[key].builder;
+		});
+		const comps = command.commandObject.components ?? {};
 		const callbackArgs = {
 			guild: message?.guild ?? interaction?.guild ?? null,
 			args: options,
@@ -181,15 +188,8 @@ class CommandHandler {
 				interaction?.user ??
 				null,
 			client: this._instance.client,
-			components: command.commandObject.components?.map(
-				(component) =>
-					(...args: any) =>
-						component.builder(
-							getBuilderInstance(component.type) as any, // cba maintaining types here ngl
-							...args
-						)
-			),
-		} as CallbackArgs<typeof options>;
+			components: newComponents,
+		} as CallbackArgs<typeof options, typeof comps>;
 
 		await this.processCommand(
 			command.commandObject,
@@ -198,8 +198,8 @@ class CommandHandler {
 		);
 	}
 
-	async processCommand<O extends Options>(
-		command: Command<O>,
+	async processCommand<O extends Options, C extends Components>(
+		command: Command<O, C>,
 		validations: RuntimeValidation[],
 		data: CallbackArgs<O>
 	) {
@@ -214,7 +214,7 @@ class CommandHandler {
 		}
 
 		if (command.type === "text") {
-			const dataArgs = data as TextCallbackArgs<O>;
+			const dataArgs = data as TextCallbackArgs<O, C>;
 			const message = await command.callback(dataArgs);
 			if (!message) return;
 			if (typeof message === "string") {
@@ -234,7 +234,7 @@ class CommandHandler {
 				dataArgs.message.reply(newMsg);
 			}
 		} else if (command.type === "hybrid") {
-			const dataArgs = data as HybridCallbackArgs<O>;
+			const dataArgs = data as HybridCallbackArgs<O, C>;
 			const isEphemeral =
 				typeof command.ephemeral === "boolean"
 					? command.ephemeral
@@ -317,7 +317,7 @@ class CommandHandler {
 				}
 			}
 		} else if (command.type === "slash") {
-			const dataArgs = data as SlashCallbackArgs<O>;
+			const dataArgs = data as SlashCallbackArgs<O, C>;
 			const isEphemeral =
 				typeof command.ephemeral === "boolean"
 					? command.ephemeral
