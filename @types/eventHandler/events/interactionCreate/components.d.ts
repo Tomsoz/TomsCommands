@@ -1,6 +1,6 @@
 import { Components } from "../../../types/components.js";
 import { CommandObject } from "../../../commandHandler/Command.js";
-export declare const componentFunctions: Map<CommandObject, Components>;
+export declare const componentFunctions: Map<CommandObject, Components<undefined, undefined>>;
 declare const _default: import("../../../types/event.js").Event;
 export default _default;
 //# sourceMappingURL=components.d.ts.map

@@ -36,18 +36,13 @@ export default event({
 		const type = getType(interaction);
 		if (!type || !isComponentInteraction(interaction)) return;
 
-		const componentArray = Object.values(componentFunctions.values());
-		const component = componentArray.find(
-			(c) => c.type === type && c.customId === interaction.customId
+		const componentArray = Array.from(componentFunctions.values());
+		const components = componentArray.find(
+			(c) => interaction.customId in c
 		);
-		if (!component) return;
+		if (!components) return;
 
-		const command = Array.from(componentFunctions.keys()).find((cmd) =>
-			Object.values(componentFunctions.get(cmd) ?? {})?.includes(
-				component
-			)
-		);
-		if (!command) return;
+		const component = components[interaction.customId];
 
 		await component.execute({
 			guild: interaction.guild,
@@ -55,6 +50,8 @@ export default event({
 			user: interaction.member ?? interaction.user,
 			// @ts-ignore
 			interaction,
+			// @ts-ignore
+			components,
 		});
 	},
 });
