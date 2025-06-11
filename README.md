@@ -56,3 +56,10 @@ Contributions are welcome! Please feel free to submit a pull request or open an 
 ## License
 
 Distributed under the MIT License. See `LICENSE` file for more information.
+
+
+
+## Roadmap for Component Handler
+[ ] In command object have a components array
+[ ] Each one will have a customId, a type and an execute function
+[ ] The commands path separated by . will be appended to the start of the customId

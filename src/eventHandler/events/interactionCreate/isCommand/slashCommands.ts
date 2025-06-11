@@ -54,7 +54,7 @@ export default event({
 		if ("defer" in command.commandObject && command.commandObject.defer) {
 			if (ephemeral) {
 				await interaction.deferReply({
-					flags: MessageFlags.Ephemeral
+					flags: MessageFlags.Ephemeral,
 				});
 			} else {
 				await interaction.deferReply();
@@ -67,5 +67,5 @@ export default event({
 			undefined,
 			interaction
 		);
-	}
+	},
 });

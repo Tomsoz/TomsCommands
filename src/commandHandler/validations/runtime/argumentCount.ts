@@ -1,5 +1,6 @@
 import { runtimeValidation } from "../../../builders.js";
 import { TextCommand, TextOnErrorArgs } from "../../../types/command.js";
+import { Components } from "../../../types/components.js";
 
 const validation = runtimeValidation({
 	type: "text",
@@ -20,18 +21,18 @@ const validation = runtimeValidation({
 			([_, option]) => option.required
 		);
 
-		const onErrorArgs: TextOnErrorArgs<typeof to> = {
+		const onErrorArgs: TextOnErrorArgs<typeof to, Components> = {
 			...args,
 			command: textCommand,
 			error:
 				providedArgs.length < requiredArgs.length
 					? "tooLittleArgs"
-					: "tooManyArgs"
+					: "tooManyArgs",
 		};
 		await textCommand.onError?.(onErrorArgs);
 
 		return providedArgs.length >= requiredArgs.length;
-	}
+	},
 });
 
 export default validation;

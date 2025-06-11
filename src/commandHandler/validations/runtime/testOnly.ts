@@ -1,5 +1,6 @@
 import { runtimeValidation } from "../../../builders.js";
 import { Command, TextCallbackArgs } from "../../../types/command.js";
+import { Components } from "../../../types/components.js";
 import { Options } from "../../../types/options.js";
 
 const validation = runtimeValidation({
@@ -12,8 +13,8 @@ const validation = runtimeValidation({
 			(!guild || !instance.devGuilds.includes(guild.id))
 		) {
 			const errorArgs = {
-				...(args as TextCallbackArgs<Options>),
-				error: "devOnly"
+				...(args as TextCallbackArgs<Options, Components>),
+				error: "devOnly",
 			};
 			await (command as Command<Options>).onError?.(errorArgs as any);
 
@@ -21,7 +22,7 @@ const validation = runtimeValidation({
 		}
 
 		return true;
-	}
+	},
 });
 
 export default validation;
