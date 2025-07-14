@@ -1,6 +1,6 @@
 {
 	"name": "toms-commands",
-	"version": "1.0.12",
+	"version": "1.0.15",
 	"description": "A collection of discord handlers for my discord bots",
 	"main": "dist/index.js",
 	"types": "@types/index.d.ts",
@@ -19,9 +19,7 @@
 	"author": "Tomsoz, tomsoz.dev",
 	"license": "GNU GPLv3",
 	"peerDependencies": {
-		"@t3-oss/env-core": "^0.13.0",
-		"discord.js": "^14.19.3",
-		"zod": "^3.24.2"
+		"discord.js": "^14.19.3"
 	},
 	"devDependencies": {
 		"@types/node": "^22.13.9",

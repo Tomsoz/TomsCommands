@@ -4,10 +4,11 @@ import {
 	HybridCommand,
 	SlashCommand,
 	TextCallbackArgs,
-	TextCommand
+	TextCommand,
 } from "./command.js";
 
 import { HybridCallbackArgs, SlashCallbackArgs } from "./command.js";
+import { Components } from "./components.js";
 import { Options } from "./options.js";
 
 export type AllSyntaxValidation = {
@@ -42,30 +43,30 @@ export type AllRuntimeValidation = {
 	type: "all";
 	callback: (
 		args:
-			| TextCallbackArgs<Options>
-			| HybridCallbackArgs<Options>
-			| SlashCallbackArgs<Options>,
+			| TextCallbackArgs<Options, Components>
+			| HybridCallbackArgs<Options, Components>
+			| SlashCallbackArgs<Options, Components>,
 		instance: Handlers
 	) => Promise<boolean>;
 };
 export type TextRuntimeValidation = {
 	type: "text";
 	callback: (
-		args: TextCallbackArgs<Options>,
+		args: TextCallbackArgs<Options, Components>,
 		instance: Handlers
 	) => Promise<boolean>;
 };
 export type HybridRuntimeValidation = {
 	type: "hybrid";
 	callback: (
-		args: HybridCallbackArgs<Options>,
+		args: HybridCallbackArgs<Options, Components>,
 		instance: Handlers
 	) => Promise<boolean>;
 };
 export type SlashRuntimeValidation = {
 	type: "slash";
 	callback: (
-		args: SlashCallbackArgs<Options>,
+		args: SlashCallbackArgs<Options, Components>,
 		instance: Handlers
 	) => Promise<boolean>;
 };

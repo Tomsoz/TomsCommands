@@ -1,13 +1,15 @@
 import { Command } from "./types/command.js";
+import { Components } from "./types/components.js";
 import { Event } from "./types/event.js";
 import { Choice, Option, OptionalOption, Options } from "./types/options.js";
 import { RuntimeValidation, SyntaxValidation } from "./types/validations.js";
 
 export function command<
 	O extends Options,
+	C extends Components,
 	G extends boolean | undefined = undefined,
 	D extends boolean | undefined = undefined
->(cmd: Command<O, G, D>): Command<O, G, D> {
+>(cmd: Command<O, C, G, D>): Command<O, C, G, D> {
 	return cmd;
 }
 

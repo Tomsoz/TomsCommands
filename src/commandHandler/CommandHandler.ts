@@ -1,4 +1,5 @@
 import {
+	AnyComponentBuilder,
 	Client,
 	CommandInteraction,
 	InteractionEditReplyOptions,
@@ -6,7 +7,8 @@ import {
 	Message,
 	MessageFlags,
 	MessageReplyOptions,
-	TextDisplayBuilder
+	ModalBuilder,
+	TextDisplayBuilder,
 } from "discord.js";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -16,17 +18,20 @@ import {
 	Command,
 	HybridCallbackArgs,
 	SlashCallbackArgs,
-	TextCallbackArgs
+	TextCallbackArgs,
 } from "../types/command.js";
 import { Options } from "../types/options.js";
 import {
 	GetValidation,
 	RuntimeValidation,
-	ValidationType
+	ValidationType,
 } from "../types/validations.js";
 import { createDir, dirExists, getAllFiles } from "../utils/filesystem.js";
 import { CommandObject } from "./Command.js";
 import SlashCommands from "./SlashCommands.js";
+import { componentFunctions } from "../eventHandler/events/interactionCreate/components.js";
+import { getBuilderInstance } from "../utils/getBuilderInstance.js";
+import { Components } from "../types/components.js";
 
 class CommandHandler {
 	private _instance: Handlers;
@@ -40,7 +45,7 @@ class CommandHandler {
 	constructor({
 		instance,
 		commandsDir,
-		client
+		client,
 	}: {
 		instance: Handlers;
 		commandsDir: string;
@@ -114,6 +119,10 @@ class CommandHandler {
 			}
 
 			this._commands.set(commandObject.commandName, commandObject);
+			if (command.components) {
+				const comps = command.components;
+				componentFunctions.set(commandObject, comps);
+			}
 
 			if (command.type === "slash" || command.type === "hybrid") {
 				const options = command.options ?? {};
@@ -157,6 +166,15 @@ class CommandHandler {
 
 		if (message && command.commandObject.type === "slash") return;
 
+		const newComponents: {
+			[K in keyof typeof command.commandObject.components]: (typeof command.commandObject.components)[K]["builder"];
+		} = {};
+		Object.keys(command.commandObject?.components ?? {}).forEach((key) => {
+			if (!command.commandObject?.components) return;
+			// @ts-expect-error
+			newComponents[key] = command.commandObject.components[key].builder;
+		});
+		const comps = command.commandObject.components ?? {};
 		const callbackArgs = {
 			guild: message?.guild ?? interaction?.guild ?? null,
 			args: options,
@@ -169,8 +187,9 @@ class CommandHandler {
 				message?.author ??
 				interaction?.user ??
 				null,
-			client: this._instance.client
-		} as CallbackArgs<typeof options>;
+			client: this._instance.client,
+			components: newComponents,
+		} as CallbackArgs<typeof options, typeof comps>;
 
 		await this.processCommand(
 			command.commandObject,
@@ -179,8 +198,8 @@ class CommandHandler {
 		);
 	}
 
-	async processCommand<O extends Options>(
-		command: Command<O>,
+	async processCommand<O extends Options, C extends Components>(
+		command: Command<O, C>,
 		validations: RuntimeValidation[],
 		data: CallbackArgs<O>
 	) {
@@ -195,14 +214,14 @@ class CommandHandler {
 		}
 
 		if (command.type === "text") {
-			const dataArgs = data as TextCallbackArgs<O>;
+			const dataArgs = data as TextCallbackArgs<O, C>;
 			const message = await command.callback(dataArgs);
 			if (!message) return;
 			if (typeof message === "string") {
 				const component = new TextDisplayBuilder().setContent(message);
 				dataArgs.message.reply({
 					flags: MessageFlags.IsComponentsV2,
-					components: [component]
+					components: [component],
 				});
 			} else {
 				let newMsg = message as MessageReplyOptions;
@@ -215,7 +234,7 @@ class CommandHandler {
 				dataArgs.message.reply(newMsg);
 			}
 		} else if (command.type === "hybrid") {
-			const dataArgs = data as HybridCallbackArgs<O>;
+			const dataArgs = data as HybridCallbackArgs<O, C>;
 			const isEphemeral =
 				typeof command.ephemeral === "boolean"
 					? command.ephemeral
@@ -233,7 +252,7 @@ class CommandHandler {
 					);
 					dataArgs.message.reply({
 						flags: MessageFlags.IsComponentsV2,
-						components: [component]
+						components: [component],
 					});
 				} else {
 					let newMsg = message as MessageReplyOptions;
@@ -256,7 +275,7 @@ class CommandHandler {
 						);
 						dataArgs.interaction.editReply({
 							flags: MessageFlags.IsComponentsV2,
-							components: [component]
+							components: [component],
 						});
 					} else {
 						let newMsg = message as InteractionEditReplyOptions;
@@ -277,7 +296,7 @@ class CommandHandler {
 							flags:
 								MessageFlags.IsComponentsV2 |
 								(isEphemeral ? MessageFlags.Ephemeral : 0),
-							components: [component]
+							components: [component],
 						});
 					} else {
 						let newMsg = message as InteractionReplyOptions;
@@ -298,7 +317,7 @@ class CommandHandler {
 				}
 			}
 		} else if (command.type === "slash") {
-			const dataArgs = data as SlashCallbackArgs<O>;
+			const dataArgs = data as SlashCallbackArgs<O, C>;
 			const isEphemeral =
 				typeof command.ephemeral === "boolean"
 					? command.ephemeral
@@ -316,7 +335,7 @@ class CommandHandler {
 					);
 					dataArgs.interaction.editReply({
 						flags: MessageFlags.IsComponentsV2,
-						components: [component]
+						components: [component],
 					});
 				} else {
 					let newMsg = message as InteractionEditReplyOptions;
@@ -337,7 +356,7 @@ class CommandHandler {
 						flags:
 							MessageFlags.IsComponentsV2 |
 							(isEphemeral ? MessageFlags.Ephemeral : 0),
-						components: [component]
+						components: [component],
 					});
 				} else {
 					let newMsg = message as InteractionReplyOptions;
