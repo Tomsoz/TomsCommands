@@ -1,0 +1,297 @@
+import { MessageFlags, TextDisplayBuilder, } from "discord.js";
+import path from "path";
+import { fileURLToPath, pathToFileURL } from "url";
+import { createDir, dirExists, getAllFiles } from "../utils/filesystem.js";
+import { CommandObject } from "./Command.js";
+import SlashCommands from "./SlashCommands.js";
+import { componentFunctions } from "../eventHandler/events/interactionCreate/components.js";
+class CommandHandler {
+    _instance;
+    _commandsDir;
+    _slashCommands;
+    _commands = new Map();
+    _validations = this.getValidations("runtime");
+    _prefix;
+    constructor({ instance, commandsDir, client, }) {
+        this._instance = instance;
+        this._commandsDir = commandsDir;
+        this._slashCommands = new SlashCommands(client);
+        this._prefix = instance.prefix;
+        this.readFiles();
+    }
+    get commands() {
+        return this._commands;
+    }
+    async readFiles() {
+        if (!dirExists(this._commandsDir)) {
+            createDir(this._commandsDir);
+        }
+        const files = getAllFiles(this._commandsDir);
+        const validations = this.getValidations("syntax");
+        for (const file of files) {
+            const fileUrl = pathToFileURL(file).href;
+            const commandObj = await import(fileUrl);
+            const command = commandObj.default;
+            if (!command)
+                continue;
+            const commandName = command.name ??
+                file
+                    .split(/[\/\\]/g)
+                    .pop()
+                    ?.split(".")[0];
+            if (!commandName) {
+                throw new Error(`Command name not found in file name ${file}`);
+            }
+            const commandObject = new CommandObject(this._instance, commandName, command);
+            const { devOnly } = command;
+            if (command.type !== "text" && command.delete) {
+                if (devOnly) {
+                    for (const guildId of this._instance.devGuilds) {
+                        await this._slashCommands.delete(commandName, guildId);
+                    }
+                }
+                else {
+                    await this._slashCommands.delete(commandName);
+                }
+                continue;
+            }
+            for (const validation of await validations) {
+                if (validation.type === "all" ||
+                    validation.type === command.type) {
+                    await validation.callback(commandObject.commandObject, this._instance);
+                }
+            }
+            this._commands.set(commandObject.commandName, commandObject);
+            if (command.components) {
+                const comps = command.components;
+                componentFunctions.set(commandObject, comps);
+            }
+            if (command.type === "slash" || command.type === "hybrid") {
+                const options = command.options ?? {};
+                if (devOnly) {
+                    for (const guild of this._instance.devGuilds) {
+                        await this._slashCommands.create(command.name ?? commandObject.commandName, command.description, options, command.permissions, command.dmOnly, command.guildOnly, guild);
+                    }
+                }
+                else {
+                    await this._slashCommands.create(command.name ?? commandObject.commandName, command.description, options, command.permissions, command.dmOnly, command.guildOnly);
+                }
+            }
+        }
+    }
+    async runCommand(command, options, message, interaction) {
+        if (!message && !interaction) {
+            throw new Error("Either 'message' or 'interaction' must be provided.");
+        }
+        if (message && command.commandObject.type === "slash")
+            return;
+        const newComponents = {};
+        Object.keys(command.commandObject?.components ?? {}).forEach((key) => {
+            if (!command.commandObject?.components)
+                return;
+            // @ts-expect-error
+            newComponents[key] = command.commandObject.components[key].builder;
+        });
+        const comps = command.commandObject.components ?? {};
+        const callbackArgs = {
+            guild: message?.guild ?? interaction?.guild ?? null,
+            args: options,
+            command: command.commandObject,
+            interaction,
+            message,
+            user: message?.member ??
+                interaction?.member ??
+                message?.author ??
+                interaction?.user ??
+                null,
+            client: this._instance.client,
+            components: newComponents,
+        };
+        await this.processCommand(command.commandObject, await this._validations, callbackArgs);
+    }
+    async processCommand(command, validations, data) {
+        for (const validation of await validations) {
+            if (validation.type === "all" || validation.type === command.type) {
+                const result = await validation.callback(data, this._instance);
+                if (!result)
+                    return;
+            }
+        }
+        if (command.type === "text") {
+            const dataArgs = data;
+            const message = await command.callback(dataArgs);
+            if (!message)
+                return;
+            if (typeof message === "string") {
+                const component = new TextDisplayBuilder().setContent(message);
+                dataArgs.message.reply({
+                    flags: MessageFlags.IsComponentsV2,
+                    components: [component],
+                });
+            }
+            else {
+                let newMsg = message;
+                if (this._instance.isAlwaysComponentsV2) {
+                    if (!newMsg.flags)
+                        newMsg.flags = MessageFlags.IsComponentsV2;
+                    // @ts-ignore discordjs bug
+                    else
+                        newMsg.flags |= MessageFlags.IsComponentsV2;
+                }
+                dataArgs.message.reply(newMsg);
+            }
+        }
+        else if (command.type === "hybrid") {
+            const dataArgs = data;
+            const isEphemeral = typeof command.ephemeral === "boolean"
+                ? command.ephemeral
+                : command.ephemeral !== undefined &&
+                    "value" in dataArgs.args[command.ephemeral]
+                    ? // @ts-ignore typescript bein strange
+                        dataArgs.args[command.ephemeral].value
+                    : false;
+            const message = await command.callback(dataArgs);
+            if (!message)
+                return;
+            if (dataArgs.message) {
+                if (typeof message === "string") {
+                    const component = new TextDisplayBuilder().setContent(message);
+                    dataArgs.message.reply({
+                        flags: MessageFlags.IsComponentsV2,
+                        components: [component],
+                    });
+                }
+                else {
+                    let newMsg = message;
+                    if (this._instance.isAlwaysComponentsV2) {
+                        if (!newMsg.flags)
+                            newMsg.flags = MessageFlags.IsComponentsV2;
+                        // @ts-ignore discordjs bug
+                        else
+                            newMsg.flags |= MessageFlags.IsComponentsV2;
+                    }
+                    dataArgs.message.reply(newMsg);
+                }
+            }
+            else if (dataArgs.interaction) {
+                if (dataArgs.interaction.replied ||
+                    dataArgs.interaction.deferred) {
+                    if (typeof message === "string") {
+                        const component = new TextDisplayBuilder().setContent(message);
+                        dataArgs.interaction.editReply({
+                            flags: MessageFlags.IsComponentsV2,
+                            components: [component],
+                        });
+                    }
+                    else {
+                        let newMsg = message;
+                        if (this._instance.isAlwaysComponentsV2) {
+                            if (!newMsg.flags)
+                                newMsg.flags = MessageFlags.IsComponentsV2;
+                            // @ts-ignore discordjs bug
+                            else
+                                newMsg.flags |= MessageFlags.IsComponentsV2;
+                        }
+                        dataArgs.interaction.editReply(newMsg);
+                    }
+                }
+                else {
+                    if (typeof message === "string") {
+                        const component = new TextDisplayBuilder().setContent(message);
+                        dataArgs.interaction.reply({
+                            flags: MessageFlags.IsComponentsV2 |
+                                (isEphemeral ? MessageFlags.Ephemeral : 0),
+                            components: [component],
+                        });
+                    }
+                    else {
+                        let newMsg = message;
+                        if (this._instance.isAlwaysComponentsV2) {
+                            if (!newMsg.flags)
+                                newMsg.flags = MessageFlags.IsComponentsV2;
+                            // @ts-ignore discordjs bug
+                            else
+                                newMsg.flags |= MessageFlags.IsComponentsV2;
+                        }
+                        if (isEphemeral) {
+                            if (!newMsg.flags)
+                                newMsg.flags = MessageFlags.Ephemeral;
+                            // @ts-ignore discordjs bug
+                            else
+                                newMsg.flags |= MessageFlags.Ephemeral;
+                        }
+                        dataArgs.interaction.reply(newMsg);
+                    }
+                }
+            }
+        }
+        else if (command.type === "slash") {
+            const dataArgs = data;
+            const isEphemeral = typeof command.ephemeral === "boolean"
+                ? command.ephemeral
+                : command.ephemeral !== undefined &&
+                    "value" in dataArgs.args[command.ephemeral]
+                    ? // @ts-ignore typescript bein strange
+                        dataArgs.args[command.ephemeral].value
+                    : false;
+            const message = await command.callback(dataArgs);
+            if (!message)
+                return;
+            if (dataArgs.interaction.replied || dataArgs.interaction.deferred) {
+                if (typeof message === "string") {
+                    const component = new TextDisplayBuilder().setContent(message);
+                    dataArgs.interaction.editReply({
+                        flags: MessageFlags.IsComponentsV2,
+                        components: [component],
+                    });
+                }
+                else {
+                    let newMsg = message;
+                    if (this._instance.isAlwaysComponentsV2) {
+                        if (!newMsg.flags)
+                            newMsg.flags = MessageFlags.IsComponentsV2;
+                        // @ts-ignore discordjs bug
+                        else
+                            newMsg.flags |= MessageFlags.IsComponentsV2;
+                    }
+                    dataArgs.interaction.editReply(newMsg);
+                }
+            }
+            else {
+                if (typeof message === "string") {
+                    const component = new TextDisplayBuilder().setContent(message);
+                    dataArgs.interaction.reply({
+                        flags: MessageFlags.IsComponentsV2 |
+                            (isEphemeral ? MessageFlags.Ephemeral : 0),
+                        components: [component],
+                    });
+                }
+                else {
+                    let newMsg = message;
+                    if (this._instance.isAlwaysComponentsV2) {
+                        if (!newMsg.flags)
+                            newMsg.flags = MessageFlags.IsComponentsV2;
+                        // @ts-ignore discordjs bug
+                        else
+                            newMsg.flags |= MessageFlags.IsComponentsV2;
+                    }
+                    if (isEphemeral) {
+                        if (!newMsg.flags)
+                            newMsg.flags = MessageFlags.Ephemeral;
+                        // @ts-ignore discordjs bug
+                        else
+                            newMsg.flags |= MessageFlags.Ephemeral;
+                    }
+                    dataArgs.interaction.reply(newMsg);
+                }
+            }
+        }
+    }
+    getValidations(type) {
+        const __filename = fileURLToPath(import.meta.url);
+        const dirname = path.dirname(__filename);
+        return (async () => await Promise.all(getAllFiles(path.join(dirname, "validations", type)).map(async (filePath) => (await import(pathToFileURL(filePath).href)).default)))();
+    }
+}
+export default CommandHandler;
+//# sourceMappingURL=CommandHandler.js.map
